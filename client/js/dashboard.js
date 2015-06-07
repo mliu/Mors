@@ -5,7 +5,7 @@
   var PADDING_BOTTOM = 25;
   var METRICS_FONT = "15px Arial";
 
-  var Dashboard = function(player, socket) {
+  var Dashboard = function(stage) {
     // Initialize metrics container
     this.metricsContainer = new createjs.Container();
 
@@ -13,14 +13,13 @@
     this.fpsCounter = new createjs.Text("FPS: N/A", METRICS_FONT, "#000");
     this.metricsContainer.addChild(this.fpsCounter);
 
-    this.player = player;
-    this.socket = socket;
+    this.stage = stage;
 
     this.positionSelf();
   }
 
-  Dashboard.prototype.displayWelcomeScreen = function() {
-    socket.emit('setup', { name: "Michael" });
+  Dashboard.prototype.displayWelcomeScreen = function(player, callback) {
+    callback({ name: "Michael" });
   }
 
   Dashboard.prototype.hideWelcomeScreen = function() {
@@ -29,7 +28,7 @@
 
   Dashboard.prototype.positionSelf = function() {
     this.metricsContainer.x = PADDING_LEFT;
-    this.metricsContainer.y = stage.canvas.height - PADDING_BOTTOM;
+    this.metricsContainer.y = this.stage.canvas.height - PADDING_BOTTOM;
   }
 
   window.Dashboard = Dashboard;

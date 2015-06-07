@@ -1,67 +1,93 @@
-'use strict';
+(function() {
+  'use strict';
 
-var socket;
+  var socket;
 
-// Game objects
-var stage;
-var player;
+  // Game objects
+  var stage;
+  var player;
 
-// Metrics
-var dashboard;
+  // Metrics
+  var dashboard;
 
-// Initialization function
-function init() {
-  // Initialize socket connection
-  socket = io();
-  setupSocket();
+  // Helper variables
+  var initialized = false;
 
-  // Create stage
-  stage = new createjs.Stage("canvas");
+  // Initialization function
+  function init() {
+    if(initialized) {
+      return;
+    }
 
-  // Set stage canvas width/height
-  stage.canvas.width = document.body.clientWidth;
-  stage.canvas.height = window.innerHeight;
+    // Initialize socket connection
+    socket = io();
+    setupSocket();
 
-  // Create player and add it to the stage
-  player = new Player();
+    // Create stage
+    stage = new createjs.Stage("canvas");
 
-  // Initialize dashboard
-  dashboard = new Dashboard(player, socket);
-  stage.addChild(dashboard.metricsContainer);
-  dashboard.displayWelcomeScreen();
+    // Set stage canvas width/height
+    stage.canvas.width = document.body.clientWidth;
+    stage.canvas.height = window.innerHeight;
 
-  //Initialize ticker
-  createjs.Ticker.setFPS(60);
-  createjs.Ticker.useRAF = true;
-  createjs.Ticker.addEventListener("tick", tick);
-}
+    // Create player and add it to the stage
+    player = new Player();
 
-function setupSocket() {
-  // Setup success
-  socket.on('setupSuccess', function(playerSettings) {
-    player.setup(playerSettings);
+    // Initialize dashboard
+    dashboard = new Dashboard(stage);
+    stage.addChild(dashboard.metricsContainer);
+    dashboard.displayWelcomeScreen(player, setupPlayer);
 
-    // Add player to stage
-    stage.addChild(player.shapeInstance);
-    
-    dashboard.hideWelcomeScreen();
-  });
-}
+    //Initialize ticker
+    createjs.Ticker.setFPS(30);
+    createjs.Ticker.useRAF = true;
+    createjs.Ticker.addEventListener("tick", tick);
 
-// Gameticker function
-function tick(event) {
-  // Update dashboard fpsCounter
-  dashboard.fpsCounter.text = "FPS: " + Math.round(createjs.Ticker.getMeasuredFPS());
+    initialized = true;
+  }
+  window.init = init;
 
-  stage.update();
-}
+  // Callback for when the user enters their info on the welcome screen
+  function setupPlayer(data) {
+    socket.emit('setup', data);
+  }
 
-// Watch for window resize
-window.onresize = function() {
-  // Reset stage canvas width/height
-  stage.canvas.width = document.body.clientWidth;
-  stage.canvas.height = window.innerHeight;
+  // Set up socket events
+  function setupSocket() {
+    // On player movement
+    socket.on('playerMove', function(movementData) {
+      player.handleMovement(movementData);
+    });
 
-  // Reset dashboard
-  dashboard.positionSelf();
-}
+    // Setup success
+    socket.on('setupSuccess', function(playerSettings) {
+      player.setup(playerSettings);
+
+      // Add player to stage
+      stage.addChild(player.shapeInstance);
+      
+      dashboard.hideWelcomeScreen();
+    });
+  }
+
+  // Gameticker function
+  function tick(event) {
+    // Update dashboard fpsCounter
+    dashboard.fpsCounter.text = "FPS: " + Math.round(createjs.Ticker.getMeasuredFPS());
+
+    // Send back player input
+    socket.emit('0', player.toJSON());
+
+    stage.update();
+  }
+
+  // Watch for window resize
+  window.onresize = function() {
+    // Reset stage canvas width/height
+    stage.canvas.width = document.body.clientWidth;
+    stage.canvas.height = window.innerHeight;
+
+    // Reset dashboard
+    dashboard.positionSelf();
+  }
+})();

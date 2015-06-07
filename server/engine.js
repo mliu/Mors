@@ -5,6 +5,8 @@ var engine = {};
 engine.users = [];
 
 engine.addPlayer = addPlayer;
+engine.getGameData = getGameData;
+engine.handlePlayerMovement = handlePlayerMovement;
 engine.removePlayer = removePlayer;
 
 // Adds a player if it doesn't already exist in the userbase
@@ -13,6 +15,29 @@ function addPlayer(player) {
     engine.users.push(player);
   }
   setupInitialPlayerLocation(player);
+}
+
+// Returns JSON of all game models
+function getGameData() {
+  return {
+    users: engine.users
+  }
+}
+
+// Called every time a player input is received.
+function handlePlayerMovement(currentPlayer, playerData) {
+  // X-axis movement
+  if(playerData.input.left) {
+    currentPlayer.x -= currentPlayer.vx;
+  } else if(playerData.input.right) {
+    currentPlayer.x += currentPlayer.vx;
+  }
+  // Y-axis movement
+  if(playerData.input.up) {
+    currentPlayer.y -= currentPlayer.vy;
+  } else if(playerData.input.down) {
+    currentPlayer.y += currentPlayer.vy;
+  }
 }
 
 // Removes a player from the userbase

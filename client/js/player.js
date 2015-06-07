@@ -5,10 +5,10 @@
   var PLAYER_HEIGHT = 30;
 
   var Player = function() {
-    this.name = '';
     this.color = null;
     this.id = null;
     this.input = { left: false, right: false, up: false, down: false };
+    this.name = '';
   }
 
   Player.prototype.addEventListeners = function() {
@@ -21,18 +21,23 @@
     });
   }
 
+  Player.prototype.handleMovement = function(movementData) {
+    this.shapeInstance.x = movementData.x;
+    this.shapeInstance.y = movementData.y;
+  }
+
   Player.prototype.onkey = function(event, key, pressed) {
     switch(key) {
-      case KEY.LEFT: 
+      case 37: 
         this.input.left = pressed;
         break;
-      case KEY.RIGHT:
+      case 39:
         this.input.right = pressed;
         break;
-      case KEY.UP:
+      case 38:
         this.input.up = pressed;
         break;
-      case KEY.DOWN:
+      case 40:
         this.input.down = pressed;
         break;
     }
@@ -41,13 +46,18 @@
   }
 
   Player.prototype.setup = function(playerSettings) {
+    this.id = playerSettings.id;
+    this.color = playerSettings.color;
     this.name = playerSettings.name;
-    this.color = "#000";
     // Initialize shape
     this.shapeInstance = new createjs.Shape();
     this.shapeInstance.graphics.beginFill(this.color).drawRect(playerSettings.x, playerSettings.y, PLAYER_WIDTH, PLAYER_HEIGHT);
 
     this.addEventListeners();
+  }
+
+  Player.prototype.toJSON = function() {
+    return { id: this.id, input: this.input };
   }
 
   window.Player = Player;
