@@ -19,7 +19,7 @@
   }
 
   Dashboard.prototype.displayWelcomeScreen = function(player, callback) {
-    callback({ name: "Michael" });
+    callback({ name: "Human" });
   }
 
   Dashboard.prototype.hideWelcomeScreen = function() {

@@ -3,8 +3,10 @@
 var engine = {};
 
 engine.users = [];
+engine.infected = [];
 
 engine.addPlayer = addPlayer;
+engine.gameLoop = gameLoop;
 engine.getGameData = getGameData;
 engine.handlePlayerMovement = handlePlayerMovement;
 engine.removePlayer = removePlayer;
@@ -15,6 +17,17 @@ function addPlayer(player) {
     engine.users.push(player);
   }
   setupInitialPlayerLocation(player);
+}
+
+// Update all game models controlled by the engine
+function gameLoop() {
+  for(var i = engine.infected.length; i--) {
+    engine.infected[i].think(engine.users);
+  }
+}
+
+function generateInfected() {
+
 }
 
 // Returns JSON of all game models

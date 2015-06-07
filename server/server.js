@@ -11,13 +11,18 @@ var config = require('./config.json');
 var engine = require('./engine.js');
 
 // Classes
+var Infected = require('./classes/infected.js');
 var Player = require('./classes/player.js');
+
+// Helper values
+var updatereq = false;
 
 app.use(express.static(__dirname + '/../client'));
 
 io.on('connection', function(socket) {
   console.log("User connected with id " + socket.id);
 
+  // Store the userID and currentPlayer within this function scope for reference
   var userID = socket.id;
   var currentPlayer = new Player(userID);
 
@@ -48,6 +53,9 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('gameUpdate', engine.getGameData());
   });
 });
+
+// Update all CPU managed models according to what FPS we run in
+setInterval(engine.gameLoop, 16);
 
 // Start server
 http.listen(config.port, function() {

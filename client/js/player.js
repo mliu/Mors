@@ -49,6 +49,7 @@
     this.id = playerSettings.id;
     this.color = playerSettings.color;
     this.name = playerSettings.name;
+
     // Initialize shape
     this.shapeInstance = new createjs.Shape();
     this.shapeInstance.graphics.beginFill(this.color).drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);

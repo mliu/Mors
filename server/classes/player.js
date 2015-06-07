@@ -8,6 +8,7 @@ var Player = function(id) {
   this.vy = 5;
 }
 
+// Called on player setup
 Player.prototype.setup = function(data) {
   this.name = data.name;
 }

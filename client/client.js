@@ -39,7 +39,7 @@
     dashboard.displayWelcomeScreen(player, setupPlayer);
 
     //Initialize ticker
-    createjs.Ticker.setFPS(30);
+    createjs.Ticker.setFPS(60);
     createjs.Ticker.useRAF = true;
     createjs.Ticker.addEventListener("tick", tick);
 
