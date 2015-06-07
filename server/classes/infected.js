@@ -2,12 +2,12 @@
 
 // Constant values for time between status change consideration
 var statusTimeThreshold = {
-  idle: 100,
-  roam: 500,
-  chase: 500,
+  idle: 2000,
+  roam: 5000,
+  chase: 5000,
 }
 
-// Constant values for minimum distance to nearest user to stay in that state
+// Constant values for maximum distance from nearest player that proportion of propensity towards a status is halved
 var statusDistanceThreshold = {
   idle: 0,
   roam: 0,
@@ -24,8 +24,8 @@ var statusChangePercent = {
 var Infected = function(id, initX, initY) {
   this.color = '#539328';
   this.id = id;
-  this.vx = Math.random()*2 + 2;
-  this.vy = Math.random()*2 + 2;
+  this.v = Math.round(Math.random()*2) + 2;
+  this.direction = Math.round(Math.random() * 360);
   this.status = "idle";
   this.statusCounter = 0;
   this.x = initX;
@@ -41,17 +41,41 @@ Infected.prototype.findNearest = function(arr) {
       nearest = i;
     }
   }
-  return i;
+  return { distance: minDist, index: nearest };
 }
 
 Infected.prototype.getCoordinates = function() {
   return { x: this.x, y: this.y };
 }
 
+// Returns all other states than the one passed in
+Infected.prototype.getOtherStates = function(state) {
+  var states = [];
+  var keys = Object.keys(statusTimeThreshold);
+  for(var s = keys.length; s--) {
+    if(keys[s] != state) {
+      states.push(keys[s]);
+    }
+  }
+  return states;
+}
+
 // Called on each game loop. Go through state of current infected. Determine status changes and new coordinates.
 Infected.prototype.think = function(users) {
-  var target = users[this.findNearest(users)];
-  if()
+  if(users.length) {
+    var nearestData = this.findNearest(users);
+
+    // Find nearest player
+    var target = users[this.findNearest(users)];
+
+    // If the amount of thought processes stayed in this status is above the threshold, determine if this infected changes state.
+    if(this.statusCounter > this.statusTimeThreshold[this.status]) {
+      var possibleStates = this.getOtherStates(this.status);
+    }
+  }
+
+  this.statusCounter++;
+  }
 }
 
 Infected.prototype.toJSON = function() {

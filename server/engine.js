@@ -41,15 +41,15 @@ function getGameData() {
 function handlePlayerMovement(currentPlayer, playerData) {
   // X-axis movement
   if(playerData.input.left) {
-    currentPlayer.x -= currentPlayer.vx;
+    currentPlayer.x -= currentPlayer.v;
   } else if(playerData.input.right) {
-    currentPlayer.x += currentPlayer.vx;
+    currentPlayer.x += currentPlayer.v;
   }
   // Y-axis movement
   if(playerData.input.up) {
-    currentPlayer.y -= currentPlayer.vy;
+    currentPlayer.y -= currentPlayer.v;
   } else if(playerData.input.down) {
-    currentPlayer.y += currentPlayer.vy;
+    currentPlayer.y += currentPlayer.v;
   }
 }
 

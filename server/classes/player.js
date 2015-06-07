@@ -4,8 +4,7 @@ var Player = function(id) {
   this.color = '#000';
   this.id = id;
   this.name = '';
-  this.vx = 5;
-  this.vy = 5;
+  this.v = 5;
 }
 
 // Called on player setup
