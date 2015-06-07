@@ -51,8 +51,9 @@
     this.name = playerSettings.name;
     // Initialize shape
     this.shapeInstance = new createjs.Shape();
-    this.shapeInstance.graphics.beginFill(this.color).drawRect(playerSettings.x, playerSettings.y, PLAYER_WIDTH, PLAYER_HEIGHT);
-
+    this.shapeInstance.graphics.beginFill(this.color).drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    this.shapeInstance.x = playerSettings.x;
+    this.shapeInstance.y = playerSettings.y;
     this.addEventListeners();
   }
 
