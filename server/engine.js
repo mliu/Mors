@@ -5,8 +5,9 @@ var engine = {};
 var INFECTED_PER_USER = 10;
 var BASE_INFECTED = 50;
 
-engine.users = [];
 engine.infected = [];
+engine.looping = false;
+engine.users = [];
 
 engine.addPlayer = addPlayer;
 engine.gameLoop = gameLoop;
@@ -39,9 +40,14 @@ function findIndex(arr, id) {
 
 // Update all game models controlled by the engine
 function gameLoop() {
+  if(engine.looping) {
+    return;
+  }
+  engine.looping = true;
   for(var i = engine.infected.length; i--;) {
     engine.infected[i].think(engine.users);
   }
+  engine.looping = false;
 }
 
 // TODO Actually detect where's a good place to drop an infected
@@ -87,7 +93,7 @@ function handlePlayerMovement(currentPlayer, playerData) {
 function removeIndex(arr, id) {
   var index = findIndex(arr, id);
   if(index != -1) {
-    return arr.splice(findIndex(arr, id), 1);
+    return arr.splice(findIndex(arr, id), 1)[0];
   }
   return -1;
 }

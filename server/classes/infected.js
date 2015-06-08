@@ -2,9 +2,9 @@
 
 // Constant values for time between status change consideration
 var statusTimeThreshold = {
-  idle: 2000,
-  roam: 5000,
-  chase: 5000,
+  idle: 150,
+  roam: 300,
+  chase: 300,
 }
 
 // Constant values for maximum distance from nearest player that proportion of propensity towards a status is halved
@@ -129,7 +129,7 @@ Infected.prototype.think = function(users) {
 
 // Think method for chase
 Infected.prototype.chaseThink = function(users) {
-  if(this.statusCounter == 0) {
+  if(this.statusCounter == 0 || !this.target) {
     // If this is the first frame in chase, choose a target randomly from the nearest 5 to chase
     var targets = this.getNearestFive(users);
     this.target = targets[Math.round(Math.random() * (targets.length-1))].object;
