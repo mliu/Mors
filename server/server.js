@@ -2,7 +2,7 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http, { pingTimeout: 26000 });
 
 // Config
 var config = require('./config.json');
@@ -36,7 +36,7 @@ io.on('connection', function(socket) {
 
     // Notify users of player joining
     socket.emit('setupSuccess', currentPlayer.toJSON());
-    io.emit('playerJoin', { users: engine.users, player: currentPlayer.toJSON() });
+    socket.broadcast.emit('playerJoin', { player: currentPlayer.toJSON() });
   });
 
   // On disconnected
@@ -49,7 +49,7 @@ io.on('connection', function(socket) {
   socket.on('0', function(playerData) {
     engine.handlePlayerMovement(currentPlayer, playerData);
 
-    socket.emit('playerMove', currentPlayer);
+    socket.emit('playerMove', currentPlayer.getCoordinates());
     socket.broadcast.emit('gameUpdate', engine.getGameData());
   });
 });

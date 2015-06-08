@@ -21,7 +21,7 @@ function addPlayer(player) {
 
 // Update all game models controlled by the engine
 function gameLoop() {
-  for(var i = engine.infected.length; i--) {
+  for(var i = engine.infected.length; i--;) {
     engine.infected[i].think(engine.users);
   }
 }
@@ -30,10 +30,19 @@ function generateInfected() {
 
 }
 
+// Calls toJSON() on all elements in arr and returns the array
+function getJSONArray(arr) {
+  var res = [];
+  for(var i = arr.length; i--;) {
+    res.push(arr[i].toJSON());
+  }
+  return res;
+}
+
 // Returns JSON of all game models
 function getGameData() {
   return {
-    users: engine.users
+    users: getJSONArray(engine.users)
   }
 }
 

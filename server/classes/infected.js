@@ -25,8 +25,8 @@ var Infected = function(id, initX, initY) {
   this.color = '#539328';
   this.id = id;
   this.v = Math.round(Math.random()*2) + 2;
-  this.direction = Math.round(Math.random() * 360);
-  this.status = "idle";
+  this.direction = 0;
+  this.status = "chase";
   this.statusCounter = 0;
   this.x = initX;
   this.y = initY;
@@ -36,7 +36,7 @@ var Infected = function(id, initX, initY) {
 Infected.prototype.findNearest = function(arr) {
   var minDist = Infinity;
   var nearest = null;
-  for(var i = arr.length; i--) {
+  for(var i = arr.length; i--;) {
     if(Math.sqrt(arr[i].x * arr[i].x + arr[i].y * arr[i].y) < minDist) {
       nearest = i;
     }
@@ -52,7 +52,7 @@ Infected.prototype.getCoordinates = function() {
 Infected.prototype.getOtherStates = function(state) {
   var states = [];
   var keys = Object.keys(statusTimeThreshold);
-  for(var s = keys.length; s--) {
+  for(var s = keys.length; s--;) {
     if(keys[s] != state) {
       states.push(keys[s]);
     }
@@ -71,11 +71,18 @@ Infected.prototype.think = function(users) {
     // If the amount of thought processes stayed in this status is above the threshold, determine if this infected changes state.
     if(this.statusCounter > this.statusTimeThreshold[this.status]) {
       var possibleStates = this.getOtherStates(this.status);
-    }
-  }
 
-  this.statusCounter++;
+    }
+
+    // Call the status method
+    this["think" + this.status](target);
+    this.statusCounter++;
   }
+}
+
+// Think method for chase
+Infected.prototype.thinkChase = function(nearestUser) {
+  this.direction = Math.atan((nearestUser.y - this.y)/(nearestUser.x - this.x));
 }
 
 Infected.prototype.toJSON = function() {
