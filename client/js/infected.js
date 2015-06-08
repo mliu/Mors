@@ -4,7 +4,7 @@
   var WIDTH = 30;
   var HEIGHT = 30;
 
-  var Human = function(color, id, name, x, y) {
+  var Infected = function(color, id, name, x, y) {
     this.color = color;
     this.id = id;
     this.name = name;
@@ -16,10 +16,10 @@
     this.shapeInstance.y = y;
   }
 
-  Human.prototype.handleMovement = function(movementData) {
+  Infected.prototype.handleMovement = function(movementData) {
     this.shapeInstance.x = movementData.x;
     this.shapeInstance.y = movementData.y;
   };
 
-  window.Human = Human;
+  window.Infected = Infected;
 })();

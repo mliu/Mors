@@ -11,11 +11,12 @@ var config = require('./config.json');
 var engine = require('./engine.js');
 
 // Classes
-var Infected = require('./classes/infected.js');
 var Player = require('./classes/player.js');
 
 // Helper values
 var updatereq = false;
+
+engine.setup();
 
 app.use(express.static(__dirname + '/../client'));
 
@@ -29,28 +30,28 @@ io.on('connection', function(socket) {
   // When player has entered their data
   socket.on('setup', function(playerData) {
     // Setup current player
-    currentPlayer.setup(playerData.name);
+    currentPlayer.setup(playerData);
 
     // Add the player to the game
     engine.addPlayer(currentPlayer);
 
     // Notify users of player joining
     socket.emit('setupSuccess', currentPlayer.toJSON());
-    socket.broadcast.emit('playerJoin', { player: currentPlayer.toJSON() });
+    socket.broadcast.emit('playerJoin', currentPlayer.toJSON());
   });
 
   // On disconnected
   socket.on('disconnect', function() {
     console.log("User disconnected with id " + userID);
     // If the player was added to users, remove it
-    io.emit('playerLeave', { player: engine.removePlayer(userID) });
+    io.emit('playerLeave', engine.removePlayer(userID));
   });
 
   socket.on('0', function(playerData) {
     engine.handlePlayerMovement(currentPlayer, playerData);
 
     socket.emit('playerMove', currentPlayer.getCoordinates());
-    socket.broadcast.emit('gameUpdate', engine.getGameData());
+    io.emit('gameUpdate', engine.getGameData());
   });
 });
 

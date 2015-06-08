@@ -4,9 +4,9 @@
   var socket;
 
   // Game objects
+  var infectedModels = {};
   var stage;
   var player;
-  var users = [];
   var userModels = {};
 
   // Metrics
@@ -49,8 +49,26 @@
   }
   window.init = init;
 
-  // Updates positions of all users in the canvas
-  function renderUsers() {
+  // Updates all infected in the canvas
+  function renderInfected(infected) {
+    for(var i = infected.length; i--;) {
+      var model = infectedModels[infected[i].id];
+
+      if(model != null) {
+
+        // If the infected model already exists
+        model.handleMovement(infected[i]);
+      } else {
+
+        // Create the infected model if it doesn't exist and add it to the stage
+        infectedModels[infected[i].id] = new Infected(infected[i].color, infected[i].id, infected[i].x, infected[i].y);
+        stage.addChild(infectedModels[infected[i].id].shapeInstance);
+      }
+    }
+  }
+
+  // Updates all users in the canvas
+  function renderUsers(users) {
     for(var u = users.length; u--;) {
 
       // Only render if it's another player
@@ -80,13 +98,21 @@
   function setupSocket() {
     // On game updates
     socket.on('gameUpdate', function(data) {
-      users = data.users;
-      renderUsers();
+      renderUsers(data.users);
+      renderInfected(data.infected);
     });
 
     // On player join
     socket.on('playerJoin', function(playerData) {
 
+    });
+
+    // On player leave
+    socket.on('playerLeave', function(playerData) {
+      if(playerData) {
+        stage.removeChild(userModels[playerData.id].shapeInstance);
+        userModels[playerData.id] = null;
+      }
     });
 
     // On player movement

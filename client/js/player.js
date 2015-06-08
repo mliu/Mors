@@ -1,8 +1,8 @@
 (function() {
   'use strict';
 
-  var PLAYER_WIDTH = 30;
-  var PLAYER_HEIGHT = 30;
+  var WIDTH = 30;
+  var HEIGHT = 30;
 
   var Player = function() {
     this.color = null;
@@ -52,7 +52,7 @@
 
     // Initialize shape
     this.shapeInstance = new createjs.Shape();
-    this.shapeInstance.graphics.beginFill(this.color).drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    this.shapeInstance.graphics.beginFill(this.color).drawRect(0, 0, WIDTH, HEIGHT);
     this.shapeInstance.x = playerSettings.x;
     this.shapeInstance.y = playerSettings.y;
     this.addEventListeners();

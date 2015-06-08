@@ -1,6 +1,9 @@
 'use strict';
+var Infected = require('./classes/infected.js');
 
 var engine = {};
+var INFECTED_PER_USER = 10;
+var BASE_INFECTED = 50;
 
 engine.users = [];
 engine.infected = [];
@@ -10,6 +13,7 @@ engine.gameLoop = gameLoop;
 engine.getGameData = getGameData;
 engine.handlePlayerMovement = handlePlayerMovement;
 engine.removePlayer = removePlayer;
+engine.setup = setup;
 
 // Adds a player if it doesn't already exist in the userbase
 function addPlayer(player) {
@@ -17,6 +21,20 @@ function addPlayer(player) {
     engine.users.push(player);
   }
   setupInitialPlayerLocation(player);
+
+  // Create infected for the user
+  for(var i=0; i<INFECTED_PER_USER; i++) {
+    engine.infected.push(generateInfected(engine.infected.length + i));
+  }
+}
+
+// Find and return the location of object with property id in arr
+function findIndex(arr, id) {
+  for(var i=0; i<arr.length; i++) {
+    if(arr[i].id == id)
+      return i;
+  }
+  return -1;
 }
 
 // Update all game models controlled by the engine
@@ -26,8 +44,18 @@ function gameLoop() {
   }
 }
 
-function generateInfected() {
+// TODO Actually detect where's a good place to drop an infected
+function generateInfected(id) {
+  var infected = new Infected(id, Math.round(Math.random() * 300), Math.round(Math.random() * 300));
+  return infected;
+}
 
+// Returns JSON of all game models
+function getGameData() {
+  return {
+    users: getJSONArray(engine.users),
+    infected: getJSONArray(engine.infected)
+  }
 }
 
 // Calls toJSON() on all elements in arr and returns the array
@@ -37,13 +65,6 @@ function getJSONArray(arr) {
     res.push(arr[i].toJSON());
   }
   return res;
-}
-
-// Returns JSON of all game models
-function getGameData() {
-  return {
-    users: getJSONArray(engine.users)
-  }
 }
 
 // Called every time a player input is received.
@@ -62,20 +83,6 @@ function handlePlayerMovement(currentPlayer, playerData) {
   }
 }
 
-// Removes a player from the userbase
-function removePlayer(index) {
-  return removeIndex(engine.users, index);
-}
-
-// Find and return the location of object with property id in arr
-function findIndex(arr, id) {
-  for(var i=0; i<arr.length; i++) {
-    if(arr[i].id == id)
-      return i;
-  }
-  return -1;
-}
-
 // Remove and return the object with property id in arr
 function removeIndex(arr, id) {
   var index = findIndex(arr, id);
@@ -85,9 +92,22 @@ function removeIndex(arr, id) {
   return -1;
 }
 
+// Removes a player from the userbase
+function removePlayer(index) {
+  return removeIndex(engine.users, index);
+}
+
+// Called on server start, generates initial batch of zombies
+function setup() {
+  for(var i = 0; i<BASE_INFECTED; i++) {
+    engine.infected.push(generateInfected(i));
+  }
+}
+
 function setupInitialPlayerLocation(player) {
-  player.x = 100;
-  player.y = 100;
+  // TODO Actually detect where's a good place to drop a player
+  player.x = Math.round(Math.random() * 300);
+  player.y = Math.round(Math.random() * 300);
 }
 
 module.exports = engine;
