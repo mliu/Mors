@@ -136,7 +136,7 @@ Infected.prototype.chaseThink = function(users) {
   }
 
   // Set direction straight to target
-  this.direction = Math.atan((this.target.y - this.y)/(this.target.x - this.x));
+  this.direction = Math.atan2(this.target.y - this.y, this.target.x - this.x);
   this.x += this.v * Math.cos(this.direction);
   this.y += this.v * Math.sin(this.direction);
 }
