@@ -47,6 +47,7 @@ io.on('connection', function(socket) {
     io.emit('playerLeave', engine.removePlayer(userID));
   });
 
+  // Fired from each client every game tick
   socket.on('0', function(playerData) {
     engine.handlePlayerMovement(currentPlayer, playerData);
 

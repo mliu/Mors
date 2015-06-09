@@ -1,5 +1,6 @@
 'use strict';
 var Infected = require('./classes/infected.js');
+var Util = require('./classes/util.js');
 
 var engine = {};
 var INFECTED_PER_USER = 10;
@@ -32,7 +33,7 @@ function addPlayer(player) {
 // Find and return the location of object with property id in arr
 function findIndex(arr, id) {
   for(var i=0; i<arr.length; i++) {
-    if(arr[i].id == id)
+    if(arr[i].id === id)
       return i;
   }
   return -1;
@@ -52,7 +53,7 @@ function gameLoop() {
 
 // TODO Actually detect where's a good place to drop an infected
 function generateInfected(id) {
-  var infected = new Infected(id, Math.round(Math.random() * 300), Math.round(Math.random() * 300));
+  var infected = new Infected(id, Util.randomInt(0, 500), Util.randomInt(0, 500));
   return infected;
 }
 
@@ -112,8 +113,8 @@ function setup() {
 
 function setupInitialPlayerLocation(player) {
   // TODO Actually detect where's a good place to drop a player
-  player.x = Math.round(Math.random() * 300);
-  player.y = Math.round(Math.random() * 300);
+  player.x = Util.randomInt(0, 500);
+  player.y = Util.randomInt(0, 500);
 }
 
 module.exports = engine;

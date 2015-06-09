@@ -1,18 +1,5 @@
 'use strict';
-
-// Constant values for time between status change consideration
-var statusTimeThreshold = {
-  idle: 150,
-  roam: 300,
-  chase: 300,
-}
-
-// Constant values for maximum distance from nearest player that proportion of propensity towards a status is halved
-var statusDistanceThreshold = {
-  idle: 0,
-  roam: 0,
-  chase: 350,
-}
+var Util = require('./util.js');
 
 // Constant values for a propensity towards a status
 var statusChangePercent = {
@@ -27,13 +14,13 @@ var Infected = function(id, initX, initY) {
   this.id = id;
   this.x = initX;
   this.y = initY;
-  this.v = Math.round(Math.random()*2) + 2;
+  this.v = Util.random(1, 6);
 
   // Radian value of direction this infected is facing
   this.direction = 0;
 
   // Current state of this infected
-  this.status = "chase";
+  this.status = "idle";
 
   // Counter, incremented every gameloop this infected is in the same status
   this.statusCounter = 0;
@@ -52,13 +39,13 @@ Infected.prototype.getNearest = function(arr) {
   var dist = Infinity;
   var nearest = null;
   for(var i = arr.length; i--;) {
-    dist = Math.sqrt(arr[i].x * arr[i].x + arr[i].y * arr[i].y);
+    dist = Util.calculateDistance(this, arr[i]);
     if(dist < minDist) {
       nearest = i;
       minDist = dist;
     }
   }
-  return [{ distance: minDist, object: arr[nearest] }];
+  return { distance: minDist, object: arr[nearest] };
 }
 
 // Like getNearest but with an array of 5 closest objects in arr
@@ -66,7 +53,8 @@ Infected.prototype.getNearestFive = function(arr) {
   var nearest = [];
   var dist = Infinity;
   for(var i = arr.length; i--;) {
-    dist = Math.sqrt((arr[i].x - this.x) * (arr[i].x - this.x) + (arr[i].y - this.y) * (arr[i].y - this.y));
+    dist = Util.calculateDistance(this, arr[i]);
+
     // Add it to nearest and continue loop if nearest isn't full
     if(nearest.length < 5) {
       nearest.push({ distance: dist, object: arr[i] });
@@ -74,6 +62,7 @@ Infected.prototype.getNearestFive = function(arr) {
       var index = null;
       for(var n = nearest.length; n--;) {
         if(nearest[n].distance < dist) {
+          
           // If the distance is greater than the last element (index is not assigned) we can terminate the loop
           if(index === null) {
             break;
@@ -95,7 +84,7 @@ Infected.prototype.getNearestFive = function(arr) {
 // Returns all other states than the one passed in
 Infected.prototype.getOtherStates = function(state) {
   var states = [];
-  var keys = Object.keys(statusTimeThreshold);
+  var keys = Object.keys(statusChangePercent);
   for(var s = keys.length; s--;) {
     if(keys[s] != state) {
       states.push(keys[s]);
@@ -108,37 +97,75 @@ Infected.prototype.getOtherStates = function(state) {
 Infected.prototype.think = function(users) {
   if(users.length) {
     var statusChanged = false;
-    // If the amount of thought processes stayed in this status is above the threshold, determine if this infected changes state.
-    if(this.statusCounter > statusTimeThreshold[this.status]) {
-      var possibleStates = this.getOtherStates(this.status);
-
-      // TODO: Pick a state
-      this.status = "chase";
-      statusChanged = true;
-
-      if(statusChanged) {
-        this.statusCounter = 0; 
-      }
-    }
 
     // Call the status method
-    this[this.status + "Think"](users);
+    statusChanged = this["think" + this.status](users);
+
+    // If the status has been changed, reset the statusCounter
+    if(statusChanged) {
+      this.statusCounter = 0; 
+    }
+
     this.statusCounter++;
   }
 }
 
-// Think method for chase
-Infected.prototype.chaseThink = function(users) {
-  if(this.statusCounter == 0 || !this.target) {
-    // If this is the first frame in chase, choose a target randomly from the nearest 5 to chase
+// Think method for chase status
+Infected.prototype.thinkchase = function(users) {
+  // If this is the first frame in chase, choose a target randomly from the nearest 5 to chase
+  if(this.statusCounter === 0 || !this.target) {
     var targets = this.getNearestFive(users);
-    this.target = targets[Math.round(Math.random() * (targets.length-1))].object;
+    this.target = targets[Util.randomInt(0, targets.length-1)].object;
+  }
+
+  // If the target is too far away, we lose interest
+  if(Util.calculateDistance(this, this.target) > 250) {
+    this.status = "roam";
+    return true;
   }
 
   // Set direction straight to target
-  this.direction = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+  this.direction = Util.calculateAngle(this, this.target);
   this.x += this.v * Math.cos(this.direction);
   this.y += this.v * Math.sin(this.direction);
+  return false;
+}
+
+// Think method for idle status
+Infected.prototype.thinkidle = function(users) {
+  var nearest = this.getNearest(users);
+
+  // Probability linear function based on distance to nearest human. Closer the nearest human the higher chance of chasing. Executed every 20 ticks.
+  if(Util.intervalStep(this.statusCounter, 20) && Util.linearChance(nearest.distance, Math.random(), 200, .85)) {
+    this.status = "chase";
+    return true;
+  }
+
+  // Chance to switch into roam state
+  if(Util.intervalStep(this.statusCounter, 50) && Math.random() > 0.8) {
+    this.status = "roam";
+    return true;
+  }
+  return false
+}
+
+// Think method for roam status
+Infected.prototype.thinkroam = function(users) {
+  // Randomly change direction every 50 ticks
+  if(Util.intervalStep(this.statusCounter, 50)) {
+    this.direction += Math.random(-10, 10);
+
+    // Chance to switch into idle state
+    if(Math.random() > 0.8) {
+      this.status = "idle";
+      return true;
+    }
+  }
+  this.x += (this.v/4) * Math.cos(this.direction);
+  this.y += (this.v/4) * Math.sin(this.direction);
+
+  // Otherwise, act the same as an idling infected
+  return this.thinkidle(users);
 }
 
 Infected.prototype.toJSON = function() {

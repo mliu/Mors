@@ -54,9 +54,8 @@
     for(var i = infected.length; i--;) {
       var model = infectedModels[infected[i].id];
 
+      // If the infected model already exists
       if(model != null) {
-
-        // If the infected model already exists
         model.handleMovement(infected[i]);
       } else {
 
@@ -75,9 +74,8 @@
       if(users[u].id != player.id) {
         var human = userModels[users[u].id];
 
+        // If the human model already exists
         if(human != null) {
-
-          // If the human model already exists
           human.handleMovement(users[u]);
         } else {
 
