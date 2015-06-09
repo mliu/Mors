@@ -3,8 +3,8 @@ var Infected = require('./classes/infected.js');
 var Util = require('./classes/util.js');
 
 var engine = {};
-var INFECTED_PER_USER = 10;
-var BASE_INFECTED = 50;
+var INFECTED_PER_USER = 0;
+var BASE_INFECTED = 1;
 
 engine.infected = [];
 engine.looping = false;
@@ -101,7 +101,13 @@ function removeIndex(arr, id) {
 
 // Removes a player from the userbase
 function removePlayer(index) {
-  return removeIndex(engine.users, index);
+  var player = removeIndex(engine.users, index);
+  // Purge the player from any infected following them
+  for(var i = engine.infected.length; i--;) {
+    if(engine.infected[i].target.id === index) {
+      engine.infected[i].target = null;
+    }
+  }
 }
 
 // Called on server start, generates initial batch of zombies

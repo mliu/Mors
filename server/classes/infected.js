@@ -62,7 +62,7 @@ Infected.prototype.getNearestFive = function(arr) {
       var index = null;
       for(var n = nearest.length; n--;) {
         if(nearest[n].distance < dist) {
-          
+
           // If the distance is greater than the last element (index is not assigned) we can terminate the loop
           if(index === null) {
             break;
@@ -113,13 +113,15 @@ Infected.prototype.think = function(users) {
 // Think method for chase status
 Infected.prototype.thinkchase = function(users) {
   // If this is the first frame in chase, choose a target randomly from the nearest 5 to chase
-  if(this.statusCounter === 0 || !this.target) {
+  if(this.statusCounter === 1 || !this.target) {
     var targets = this.getNearestFive(users);
     this.target = targets[Util.randomInt(0, targets.length-1)].object;
   }
 
-  // If the target is too far away, we lose interest
-  if(Util.calculateDistance(this, this.target) > 250) {
+  // If the target is too far away, higher chance to lose interest
+  var dist = Util.calculateDistance(this, this.target);
+  if(dist > 300 || (Util.intervalStep(this.statusCounter, 20) && Util.linearChance(dist, Math.random(), 350, .05)) ) {
+    this.target = null;
     this.status = "roam";
     return true;
   }
@@ -135,7 +137,7 @@ Infected.prototype.thinkchase = function(users) {
 Infected.prototype.thinkidle = function(users) {
   var nearest = this.getNearest(users);
 
-  // Probability linear function based on distance to nearest human. Closer the nearest human the higher chance of chasing. Executed every 20 ticks.
+  // The closer the nearest target is, the higher chance of chasing
   if(Util.intervalStep(this.statusCounter, 20) && Util.linearChance(nearest.distance, Math.random(), 200, .85)) {
     this.status = "chase";
     return true;
@@ -146,7 +148,7 @@ Infected.prototype.thinkidle = function(users) {
     this.status = "roam";
     return true;
   }
-  return false
+  return false;
 }
 
 // Think method for roam status
