@@ -23,6 +23,9 @@ app.use(express.static(__dirname + '/../client'));
 io.on('connection', function(socket) {
   console.log("User connected with id " + socket.id);
 
+  // Send initial data up to the player
+  socket.emit('welcome', { map: engine.getMapData() });
+
   // Store the userID and currentPlayer within this function scope for reference
   var userID = socket.id;
   var currentPlayer = new Player(userID);

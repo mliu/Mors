@@ -4,11 +4,12 @@
   var socket;
 
   // Game objects
-  var infectedModels = {};
-  var stage;
-  var container;
-  var player;
-  var userModels = {};
+  var infectedModels = {}; // Stores all Infected
+  var stage; // HTML5 canvas, renders everything
+  var container; // Holds all models that move. Acts as a camera that follows the player around and updates all surroundings in context
+  var mapper;
+  var player; // Current player
+  var userModels = {}; // Holds all other user models
 
   // Metrics
   var dashboard;
@@ -134,6 +135,12 @@
       container.addChild(player.shapeInstance);
       
       dashboard.hideWelcomeScreen();
+    });
+
+    // Initial message received on connection.
+    socket.on('welcome', function(data) {
+      // Setup map
+      mapper = new Mapper(data.map);
     });
   }
 

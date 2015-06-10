@@ -1,6 +1,7 @@
 'use strict';
 var Infected = require('./classes/infected.js');
 var Util = require('./classes/util.js');
+var Map = require('./maps/sandbox.json');
 
 var engine = {};
 var INFECTED_PER_USER = 1;
@@ -13,6 +14,7 @@ engine.users = [];
 engine.addPlayer = addPlayer;
 engine.gameLoop = gameLoop;
 engine.getGameData = getGameData;
+engine.getMapData = getMapData;
 engine.handlePlayerMovement = handlePlayerMovement;
 engine.removePlayer = removePlayer;
 engine.setup = setup;
@@ -72,6 +74,11 @@ function getJSONArray(arr) {
     res.push(arr[i].toJSON());
   }
   return res;
+}
+
+// Returns the current map in JSON data
+function getMapData() {
+  return Map;
 }
 
 // Called every time a player input is received.
