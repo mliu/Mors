@@ -6,6 +6,7 @@
   // Game objects
   var infectedModels = {};
   var stage;
+  var container;
   var player;
   var userModels = {};
 
@@ -35,6 +36,10 @@
     // Create player and add it to the stage
     player = new Player();
 
+    // Create container to house all game models
+    container = new createjs.Container();
+    stage.addChild(container);
+
     // Initialize dashboard
     dashboard = new Dashboard(stage);
     stage.addChild(dashboard.metricsContainer);
@@ -59,9 +64,9 @@
         model.handleMovement(infected[i]);
       } else {
 
-        // Create the infected model if it doesn't exist and add it to the stage
+        // Create the infected model if it doesn't exist and add it to the container
         infectedModels[infected[i].id] = new Infected(infected[i].color, infected[i].id, infected[i].x, infected[i].y);
-        stage.addChild(infectedModels[infected[i].id].shapeInstance);
+        container.addChild(infectedModels[infected[i].id].shapeInstance);
       }
     }
   }
@@ -79,9 +84,9 @@
           human.handleMovement(users[u]);
         } else {
 
-          // Create the human model if it doesn't exist and add it to the stage
+          // Create the human model if it doesn't exist and add it to the container
           userModels[users[u].id] = new Human(users[u].color, users[u].id, users[u].name, users[u].x, users[u].y);
-          stage.addChild(userModels[users[u].id].shapeInstance);
+          container.addChild(userModels[users[u].id].shapeInstance);
         }
       }
     }
@@ -108,7 +113,7 @@
     // On player leave
     socket.on('playerLeave', function(playerData) {
       if(playerData) {
-        stage.removeChild(userModels[playerData.id].shapeInstance);
+        container.removeChild(userModels[playerData.id].shapeInstance);
         userModels[playerData.id] = null;
       }
     });
@@ -116,14 +121,17 @@
     // On player movement
     socket.on('playerMove', function(movementData) {
       player.handleMovement(movementData);
+      // Center the camera around the player
+      container.x = -player.shapeInstance.x + stage.canvas.width/2;
+      container.y = -player.shapeInstance.y + stage.canvas.height/2;
     });
 
     // Setup success
     socket.on('setupSuccess', function(playerSettings) {
       player.setup(playerSettings);
 
-      // Add player to stage
-      stage.addChild(player.shapeInstance);
+      // Add player to the container
+      container.addChild(player.shapeInstance);
       
       dashboard.hideWelcomeScreen();
     });

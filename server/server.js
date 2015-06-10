@@ -44,7 +44,9 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function() {
     console.log("User disconnected with id " + userID);
     // If the player was added to users, remove it
-    io.emit('playerLeave', engine.removePlayer(userID));
+    var player = engine.removePlayer(userID);
+    io.emit('playerLeave', player);
+    player = null;
   });
 
   // Fired from each client every game tick
