@@ -129,20 +129,21 @@
     });
 
     // Setup success
-    socket.on('setupSuccess', function(playerSettings) {
-      player.setup(playerSettings);
-
-      // Add player to the container
+    socket.on('setupSuccess', function(settings) {
+      // Setup player and add it to container
+      player.setup(settings.player);
       container.addChild(player.shapeInstance);
+
+      // Setup map and add it to container
+      mapper = new Mapper(settings.map);
+      container.addChild(mapper.mapContainer);
+
       
       dashboard.hideWelcomeScreen();
     });
 
     // Initial message received on connection.
     socket.on('welcome', function(data) {
-      // Setup map and add it to container
-      mapper = new Mapper(data.map);
-      container.addChild(mapper.mapContainer);
     });
   }
 

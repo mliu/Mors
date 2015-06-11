@@ -79,13 +79,16 @@ function getJSONArray(arr) {
 
 // Called every time a player input is received.
 function updatePlayerMovement(currentPlayer, playerData) {
-  findIndex(engine.users, currentPlayer.id).updateMovement(playerData);
+  var index = findIndex(engine.users, currentPlayer.id)
+  if(index !== -1) {
+    engine.users[index].updateMovement(playerData);
+  }
 }
 
 // Remove and return the object with property id in arr
 function removeIndex(arr, id) {
   var index = findIndex(arr, id);
-  if(index != -1) {
+  if(index !== -1) {
     return arr.splice(findIndex(arr, id), 1)[0];
   }
   return -1;

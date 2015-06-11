@@ -1,4 +1,9 @@
 'use strict';
+var Util = require('./util.js');
+var Mapper = require('./mapper.js');
+
+// Mapper that manages this player's map instance
+var mapper = new Mapper();
 
 var WIDTH = 30;
 var HEIGHT = 30;
@@ -6,6 +11,7 @@ var HEIGHT = 30;
 var Player = function(id) {
   this.color = '#000';
   this.id = id;
+  this.input = {};
   this.name = '';
   this.v = 5;
 }
@@ -13,6 +19,7 @@ var Player = function(id) {
 // Called on player setup
 Player.prototype.setup = function(data) {
   this.name = data.name;
+  mapper.use(this.mapId);
 }
 
 // Returns the (x, y) coordinates of the center of this object
@@ -22,6 +29,10 @@ Player.prototype.getCenterCoordinates = function() {
 
 Player.prototype.getCoordinates = function() {
   return { x: this.x, y: this.y };
+}
+
+Player.prototype.getMapper = function() {
+  return mapper;
 }
 
 // Called by the engine every game loop. Updates player position accordingly

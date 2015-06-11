@@ -29,14 +29,14 @@ io.on('connection', function(socket) {
 
   // When player has entered their data
   socket.on('setup', function(playerData) {
-    // Setup current player
-    currentPlayer.setup(playerData);
-
     // Add the player to the game
     engine.addPlayer(currentPlayer);
 
+    // Setup current player
+    currentPlayer.setup(playerData);
+
     // Notify users of player joining
-    socket.emit('setupSuccess', { map: currentPlayer.getMap().toJSON(), player: currentPlayer.toJSON() });
+    socket.emit('setupSuccess', { map: currentPlayer.getMapper().mapToJSON(), player: currentPlayer.toJSON() });
     socket.broadcast.emit('playerJoin', currentPlayer.toJSON());
   });
 
