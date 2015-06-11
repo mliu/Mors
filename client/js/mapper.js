@@ -33,14 +33,14 @@
 
   Mapper.prototype.renderBlocks = function() {
     // Iterate through all blocks
-    for(var x = 0; x < this.mapData.length; x++) {
-      for(var y = 0; y < this.mapData[0].length; y++) {
-        var type = this.mapData[x][y];
+    for(var y = 0; y < this.mapData.length; y++) {
+      for(var x = 0; x < this.mapData[0].length; x++) {
+        var type = this.mapData[y][x];
 
         // Render map object if it's not empty space
         if(type !== 0) {
           // Call on the render function for this block type
-          this["add" + BLOCK_REFERENCE[type]](x, y);
+          this["add" + BLOCK_REFERENCE[type].name](x*BLOCK_WIDTH, y*BLOCK_HEIGHT);
         }
       }
     }

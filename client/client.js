@@ -113,7 +113,8 @@
 
     // On player leave
     socket.on('playerLeave', function(playerData) {
-      if(playerData) {
+      // If the player exists
+      if(playerData !== -1) {
         container.removeChild(userModels[playerData.id].shapeInstance);
         userModels[playerData.id] = null;
       }
@@ -139,8 +140,9 @@
 
     // Initial message received on connection.
     socket.on('welcome', function(data) {
-      // Setup map
+      // Setup map and add it to container
       mapper = new Mapper(data.map);
+      container.addChild(mapper.mapContainer);
     });
   }
 

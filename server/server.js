@@ -23,9 +23,6 @@ app.use(express.static(__dirname + '/../client'));
 io.on('connection', function(socket) {
   console.log("User connected with id " + socket.id);
 
-  // Send initial data up to the player
-  socket.emit('welcome', { map: engine.getMapData() });
-
   // Store the userID and currentPlayer within this function scope for reference
   var userID = socket.id;
   var currentPlayer = new Player(userID);
@@ -39,7 +36,7 @@ io.on('connection', function(socket) {
     engine.addPlayer(currentPlayer);
 
     // Notify users of player joining
-    socket.emit('setupSuccess', currentPlayer.toJSON());
+    socket.emit('setupSuccess', { map: currentPlayer.getMap().toJSON(), player: currentPlayer.toJSON() });
     socket.broadcast.emit('playerJoin', currentPlayer.toJSON());
   });
 
@@ -54,7 +51,7 @@ io.on('connection', function(socket) {
 
   // Fired from each client every game tick
   socket.on('0', function(playerData) {
-    engine.handlePlayerMovement(currentPlayer, playerData);
+    engine.updatePlayerMovement(currentPlayer, playerData);
 
     socket.emit('playerMove', currentPlayer.getCoordinates());
     io.emit('gameUpdate', engine.getGameData());

@@ -8,6 +8,9 @@ var statusChangePercent = {
   chase: 0.8
 }
 
+var WIDTH = 30;
+var HEIGHT = 30;
+
 var Infected = function(id, initX, initY) {
   // General descriptive properties
   this.color = '#539328';
@@ -93,6 +96,11 @@ Infected.prototype.getOtherStates = function(state) {
   return states;
 }
 
+Infected.prototype.move = function(v) {
+  this.x += v * Math.cos(this.direction);
+  this.y += v * Math.sin(this.direction);
+}
+
 // Called on each game loop. Go through state of current infected. Determine status changes and new coordinates.
 Infected.prototype.think = function(users) {
   if(users.length) {
@@ -126,10 +134,15 @@ Infected.prototype.thinkchase = function(users) {
     return true;
   }
 
-  // Set direction straight to target
-  this.direction = Util.calculateAngle(this, this.target);
-  this.x += this.v * Math.cos(this.direction);
-  this.y += this.v * Math.sin(this.direction);
+  // If the target is close, we can just jump straight to them.
+  if(dist < this.v) {
+    this.x = this.target.x;
+    this.y = this.target.y;
+  } else {
+    // Set direction straight to target
+    this.direction = Util.calculateAngle(this, this.target);
+    this.move(this.v);
+  }
   return false;
 }
 
@@ -163,10 +176,9 @@ Infected.prototype.thinkroam = function(users) {
       return true;
     }
   }
-  this.x += (this.v/4) * Math.cos(this.direction);
-  this.y += (this.v/4) * Math.sin(this.direction);
+  this.move(this.v/4);
 
-  // Otherwise, act the same as an idling infected
+  // Other than movement, act the same as an idling infected
   return this.thinkidle(users);
 }
 

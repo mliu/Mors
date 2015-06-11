@@ -1,7 +1,6 @@
 'use strict';
 var Infected = require('./classes/infected.js');
 var Util = require('./classes/util.js');
-var Map = require('./maps/sandbox.json');
 
 var engine = {};
 var INFECTED_PER_USER = 1;
@@ -14,8 +13,7 @@ engine.users = [];
 engine.addPlayer = addPlayer;
 engine.gameLoop = gameLoop;
 engine.getGameData = getGameData;
-engine.getMapData = getMapData;
-engine.handlePlayerMovement = handlePlayerMovement;
+engine.updatePlayerMovement = updatePlayerMovement;
 engine.removePlayer = removePlayer;
 engine.setup = setup;
 
@@ -47,6 +45,9 @@ function gameLoop() {
     return;
   }
   engine.looping = true;
+  for(var u = engine.users.length; u--;) {
+    engine.users[u].handleMovement();
+  }
   for(var i = engine.infected.length; i--;) {
     engine.infected[i].think(engine.users);
   }
@@ -76,25 +77,9 @@ function getJSONArray(arr) {
   return res;
 }
 
-// Returns the current map in JSON data
-function getMapData() {
-  return Map;
-}
-
 // Called every time a player input is received.
-function handlePlayerMovement(currentPlayer, playerData) {
-  // X-axis movement
-  if(playerData.input.left) {
-    currentPlayer.x -= currentPlayer.v;
-  } else if(playerData.input.right) {
-    currentPlayer.x += currentPlayer.v;
-  }
-  // Y-axis movement
-  if(playerData.input.up) {
-    currentPlayer.y -= currentPlayer.v;
-  } else if(playerData.input.down) {
-    currentPlayer.y += currentPlayer.v;
-  }
+function updatePlayerMovement(currentPlayer, playerData) {
+  findIndex(engine.users, currentPlayer.id).updateMovement(playerData);
 }
 
 // Remove and return the object with property id in arr
@@ -128,6 +113,7 @@ function setupInitialPlayerLocation(player) {
   // TODO Actually detect where's a good place to drop a player
   player.x = Util.randomInt(0, 500);
   player.y = Util.randomInt(0, 500);
+  player.mapId = 0;
 }
 
 module.exports = engine;
