@@ -32,12 +32,12 @@ function linearChance(x, y, a, b) {
 
 // Returns a random decimal between a and b
 function random(a, b) {
-  return Math.random() * (b-a) + a;
+  return Math.random() * (b - a) + a;
 }
 
 // Returns a random integer between a and b
 function randomInt(a, b) {
-  return Math.round(Math.random() * (b-a) + a);
+  return Math.round(Math.random() * (b - a) + a);
 }
 
 module.exports = util;

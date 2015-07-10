@@ -1,122 +1,108 @@
 'use strict';
-var Infected = require('./classes/infected.js');
 var Util = require('./classes/util.js');
 
+var BLOCK_WIDTH = 30;
+var BLOCK_HEIGHT = 30;
+
 var engine = {};
-var INFECTED_PER_USER = 1;
-var BASE_INFECTED = 0;
 
-engine.infected = [];
-engine.looping = false;
-engine.users = [];
+engine.evaluateCollisions = evaluateCollisions;
 
-engine.addPlayer = addPlayer;
-engine.gameLoop = gameLoop;
-engine.getGameData = getGameData;
-engine.updatePlayerMovement = updatePlayerMovement;
-engine.removePlayer = removePlayer;
-engine.setup = setup;
-
-// Adds a player if it doesn't already exist in the userbase
-function addPlayer(player) {
-  if(findIndex(engine.users, player.id) === -1) {
-    engine.users.push(player);
-  }
-  setupInitialPlayerLocation(player);
-
-  // Create infected for the user
-  for(var i=0; i<INFECTED_PER_USER; i++) {
-    engine.infected.push(generateInfected(engine.infected.length + i));
-  }
+// Returns the (x, y) coordinates of the center of this object given it has properties x, y, WIDTH, and HEIGHT
+function calculateCenterCoordinates(obj) {
+  return { 
+    x: obj.x + obj.WIDTH / 2,
+    y: obj.y + obj.HEIGHT / 2
+  };
 }
 
-// Find and return the location of object with property id in arr
-function findIndex(arr, id) {
-  for(var i=0; i<arr.length; i++) {
-    if(arr[i].id === id)
-      return i;
-  }
-  return -1;
-}
-
-// Update all game models controlled by the engine
-function gameLoop() {
-  if(engine.looping) {
-    return;
-  }
-  engine.looping = true;
-  for(var u = engine.users.length; u--;) {
-    engine.users[u].handleMovement();
-  }
-  for(var i = engine.infected.length; i--;) {
-    engine.infected[i].think(engine.users);
-  }
-  engine.looping = false;
-}
-
-// TODO Actually detect where's a good place to drop an infected
-function generateInfected(id) {
-  var infected = new Infected(id, Util.randomInt(0, 500), Util.randomInt(0, 500));
-  return infected;
-}
-
-// Returns JSON of all game models
-function getGameData() {
+// Returns the (j, i) position of obj in the map matrix assuming obj has x and y properties
+function calculateGridCoordinates(obj) {
   return {
-    users: getJSONArray(engine.users),
-    infected: getJSONArray(engine.infected)
-  }
+    i: Math.floor((obj.y + (obj.height / 2)) / BLOCK_HEIGHT),
+    j: Math.floor((obj.x + (obj.width / 2)) / BLOCK_WIDTH)
+  };
 }
 
-// Calls toJSON() on all elements in arr and returns the array
-function getJSONArray(arr) {
-  var res = [];
-  for(var i = arr.length; i--;) {
-    res.push(arr[i].toJSON());
+// Returns true if obj has a x-axis collision with a block at coordinates (blockI, blockJ)
+function checkXCollision(obj, blockI, blockJ) {
+  if ((blockJ * BLOCK_WIDTH < obj.x + obj.width && blockJ * BLOCK_WIDTH + BLOCK_WIDTH > obj.x + obj.width) ||
+      (blockJ * BLOCK_WIDTH < obj.x && blockJ * BLOCK_WIDTH + BLOCK_WIDTH > obj.x)) {
+    return true;
   }
-  return res;
+  return false;
 }
 
-// Called every time a player input is received.
-function updatePlayerMovement(currentPlayer, playerData) {
-  var index = findIndex(engine.users, currentPlayer.id)
-  if(index !== -1) {
-    engine.users[index].updateMovement(playerData);
+// Returns true if obj has a y-axis collision with a block at coordinates (blockI, blockJ)
+function checkYCollision(obj, blockI, blockJ) {
+  if ((blockI * BLOCK_HEIGHT < obj.y + obj.height && blockI * BLOCK_HEIGHT + BLOCK_HEIGHT > obj.y + obj.height) ||
+      (blockI * BLOCK_HEIGHT < obj.y && blockI * BLOCK_HEIGHT + BLOCK_HEIGHT > obj.y)) {
+    return true;
   }
+  return false;
 }
 
-// Remove and return the object with property id in arr
-function removeIndex(arr, id) {
-  var index = findIndex(arr, id);
-  if(index !== -1) {
-    return arr.splice(findIndex(arr, id), 1)[0];
-  }
-  return -1;
-}
+// Looks at obj and any collisions in the map it currently has and update the position accordingly
+function evaluateCollisions(obj, map) {
+  var coordinates = calculateGridCoordinates(obj);
+  var surroundings = getThreeByThree(coordinates, map);
+  var block;
+  var blockI;
+  var blockJ;
+  var i;
+  var j;
 
-// Removes a player from the userbase
-function removePlayer(index) {
-  // Purge the player from any infected following them
-  for(var i = engine.infected.length; i--;) {
-    if(engine.infected[i].target && engine.infected[i].target.id === index) {
-      engine.infected[i].target = null;
+  for (i = 0; i < surroundings.length; i++) {
+    for (j = 0; j < surroundings.length; j++) {
+      block = surroundings[i][j];
+
+      // If block is not empty space, check for collision
+      if (block) {
+
+        // Get the blocks (i, j) relative to the entire map
+        blockJ = j + coordinates.j - 1;
+        blockI = i + coordinates.i - 1;
+
+        // If there's a collision
+        if (checkXCollision(obj, blockI, blockJ)) {
+
+          // Handle x-axis collisions
+          if (obj.x < blockJ * BLOCK_WIDTH + BLOCK_WIDTH) {
+            obj.x += blockJ * BLOCK_WIDTH + BLOCK_WIDTH - obj.x;
+          } else if (obj.x + obj.width > blockJ * BLOCK_WIDTH) {
+            obj.x += blockJ * BLOCK_WIDTH - (obj.x + obj.width);
+          }
+        }
+
+        if (checkYCollision(obj, blockI, blockJ)) {
+
+          // Handle y-axis collisions
+          if (obj.y < blockI * BLOCK_HEIGHT + BLOCK_HEIGHT) {
+            obj.y += blockI * BLOCK_HEIGHT + BLOCK_HEIGHT - obj.y;
+          } else if (obj.y + obj.height > blockI * BLOCK_HEIGHT) {
+            obj.y += blockI * BLOCK_HEIGHT - obj.y - obj.height;
+          }
+        }
+
+      }
     }
   }
-  return removeIndex(engine.users, index);
 }
 
-// Called on server start, generates initial batch of zombies
-function setup() {
-  for(var i = 0; i<BASE_INFECTED; i++) {
-    engine.infected.push(generateInfected(i));
+// Returns a 3x3 matrix of the block types in the map around obj (assuming it has properties i and j).
+function getThreeByThree(obj, map) {
+  var res = [];
+  var n;
+
+  for (n = -1; n < 2; n++) {
+    res.push(map[obj.i + n].slice(obj.j - 1, obj.j + 2));
   }
-}
 
-function setupInitialPlayerLocation(player) {
-  // TODO Actually detect where's a good place to drop a player
-  player.x = Util.randomInt(0, 500);
-  player.y = Util.randomInt(0, 500);
-  player.mapId = 0;
+  for(var i = 0; i < 3; i++) {
+    console.log(JSON.stringify(res[i]));
+  }
+  console.log("======================" + JSON.stringify(obj))
+  return res;
 }
 
 module.exports = engine;

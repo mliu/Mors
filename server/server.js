@@ -8,15 +8,12 @@ var io = require('socket.io')(http, { pingTimeout: 26000 });
 var config = require('./config.json');
 
 // Game controllers
-var engine = require('./engine.js');
+var game = require('./game.js');
 
 // Classes
 var Player = require('./classes/player.js');
 
-// Helper values
-var updatereq = false;
-
-engine.setup();
+game.setup();
 
 app.use(express.static(__dirname + '/../client'));
 
@@ -29,37 +26,42 @@ io.on('connection', function(socket) {
 
   // When player has entered their data
   socket.on('setup', function(playerData) {
+
     // Add the player to the game
-    engine.addPlayer(currentPlayer);
+    game.addPlayer(currentPlayer);
 
     // Setup current player
     currentPlayer.setup(playerData);
 
     // Notify users of player joining
-    socket.emit('setupSuccess', { map: currentPlayer.getMapper().mapToJSON(), player: currentPlayer.toJSON() });
+    socket.emit('setupSuccess', { map: game.getGameMap(), player: currentPlayer.toJSON() });
     socket.broadcast.emit('playerJoin', currentPlayer.toJSON());
   });
 
   // On disconnected
   socket.on('disconnect', function() {
     console.log("User disconnected with id " + userID);
+
     // If the player was added to users, remove it
-    var player = engine.removePlayer(userID);
+    var player = game.removePlayer(userID);
+
     io.emit('playerLeave', player);
     player = null;
   });
 
   // Fired from each client every game tick
   socket.on('0', function(playerData) {
-    engine.updatePlayerMovement(currentPlayer, playerData);
+
+    // Update the players movement
+    game.updatePlayerMovement(currentPlayer, playerData);
 
     socket.emit('playerMove', currentPlayer.getCoordinates());
-    io.emit('gameUpdate', engine.getGameData());
+    io.emit('gameUpdate', game.getGameData());
   });
 });
 
 // Update all CPU managed models according to what FPS we run in
-setInterval(engine.gameLoop, 16);
+setInterval(game.gameLoop, 16);
 
 // Start server
 http.listen(config.port, function() {

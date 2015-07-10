@@ -12,12 +12,14 @@
   }
 
   Player.prototype.addEventListeners = function() {
-    var p = this;
+    var _this = this;
+
     document.addEventListener('keydown', function(e) { 
-      return p.onkey(e, e.keyCode, true);
+      return _this.onkey(e, e.keyCode, true);
     });
+
     document.addEventListener('keyup', function(e) {
-      return p.onkey(e, e.keyCode, false);
+      return _this.onkey(e, e.keyCode, false);
     });
   }
 
@@ -41,6 +43,7 @@
         this.input.down = pressed;
         break;
     }
+    
     // Prevent browser scrolling
     event.preventDefault();
   }

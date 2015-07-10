@@ -19,9 +19,12 @@
 
   // Initialization function
   function init() {
-    if(initialized) {
+    if (initialized) {
       return;
     }
+
+    // Prevent future calls to init
+    initialized = true;
 
     // Initialize socket connection
     socket = io();
@@ -50,18 +53,19 @@
     createjs.Ticker.setFPS(60);
     createjs.Ticker.useRAF = true;
     createjs.Ticker.addEventListener("tick", tick);
-
-    initialized = true;
   }
   window.init = init;
 
   // Updates all infected in the canvas
   function renderInfected(infected) {
-    for(var i = infected.length; i--;) {
-      var model = infectedModels[infected[i].id];
+    var i;
+    var model;
+
+    for (i = infected.length; i--;) {
+      model = infectedModels[infected[i].id];
 
       // If the infected model already exists
-      if(model != null) {
+      if (model) {
         model.handleMovement(infected[i]);
       } else {
 
@@ -74,14 +78,17 @@
 
   // Updates all users in the canvas
   function renderUsers(users) {
-    for(var u = users.length; u--;) {
+    var human;
+    var u;
+
+    for (u = users.length; u--;) {
 
       // Only render if it's another player
-      if(users[u].id != player.id) {
-        var human = userModels[users[u].id];
+      if (users[u].id !== player.id) {
+        human = userModels[users[u].id];
 
         // If the human model already exists
-        if(human != null) {
+        if (human) {
           human.handleMovement(users[u]);
         } else {
 
@@ -113,8 +120,9 @@
 
     // On player leave
     socket.on('playerLeave', function(playerData) {
+      
       // If the player exists
-      if(playerData !== -1) {
+      if (playerData !== -1) {
         container.removeChild(userModels[playerData.id].shapeInstance);
         userModels[playerData.id] = null;
       }
@@ -123,6 +131,7 @@
     // On player movement
     socket.on('playerMove', function(movementData) {
       player.handleMovement(movementData);
+
       // Center the camera around the player
       container.x = -player.shapeInstance.x + stage.canvas.width/2;
       container.y = -player.shapeInstance.y + stage.canvas.height/2;
@@ -130,6 +139,7 @@
 
     // Setup success
     socket.on('setupSuccess', function(settings) {
+
       // Setup player and add it to container
       player.setup(settings.player);
       container.addChild(player.shapeInstance);
@@ -149,6 +159,7 @@
 
   // Gameticker function
   function tick(event) {
+
     // Update dashboard fpsCounter
     dashboard.fpsCounter.text = "FPS: " + Math.round(createjs.Ticker.getMeasuredFPS());
 
@@ -160,6 +171,7 @@
 
   // Watch for window resize
   window.onresize = function() {
+
     // Reset stage canvas width/height
     stage.canvas.width = document.body.clientWidth;
     stage.canvas.height = window.innerHeight;

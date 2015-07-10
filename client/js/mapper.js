@@ -16,6 +16,7 @@
   }
 
   Mapper.prototype.addWall = function(x, y) {
+
     // Create wall at (x, y)
     var shapeInstance = new createjs.Shape();
     shapeInstance.graphics.beginFill("#936C4A").drawRect(0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
@@ -26,21 +27,21 @@
     this.mapContainer.addChild(shapeInstance);
   }
 
-  Mapper.prototype.handleMovement = function(movementData) {
-    this.shapeInstance.x = movementData.x;
-    this.shapeInstance.y = movementData.y;
-  }
-
   Mapper.prototype.renderBlocks = function() {
+    var i;
+    var j;
+    var type;
+
     // Iterate through all blocks
-    for(var y = 0; y < this.mapData.length; y++) {
-      for(var x = 0; x < this.mapData[0].length; x++) {
-        var type = this.mapData[y][x];
+    for(i = 0; i < this.mapData.length; i++) {
+      for(j = 0; j < this.mapData[0].length; j++) {
+        type = this.mapData[i][j];
 
         // Render map object if it's not empty space
         if(type !== 0) {
+          
           // Call on the render function for this block type
-          this["add" + BLOCK_REFERENCE[type].name](x*BLOCK_WIDTH, y*BLOCK_HEIGHT);
+          this["add" + BLOCK_REFERENCE[type].name](j*BLOCK_WIDTH, i*BLOCK_HEIGHT);
         }
       }
     }

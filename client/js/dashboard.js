@@ -6,6 +6,7 @@
   var METRICS_FONT = "15px Arial";
 
   var Dashboard = function(stage) {
+    
     // Initialize metrics container
     this.metricsContainer = new createjs.Container();
 
