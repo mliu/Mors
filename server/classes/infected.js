@@ -11,11 +11,11 @@ var statusChangePercent = {
 
 var Infected = function(id, map, initX, initY) {
   // General descriptive properties
+  this.id = id;
   this.color = '#539328';
   this.height = 30;
-  this.id = id;
-  this.v = Util.random(1, 6);
   this.width = 30;
+  this.v = Util.random(1, 6);
   this.x = initX;
   this.y = initY;
   this.map = map;

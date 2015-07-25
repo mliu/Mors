@@ -22,14 +22,14 @@ game.removePlayer = removePlayer;
 game.setup = setup;
 
 // Adds a player if it doesn't already exist in the userbase
-function addPlayer(userID) {
+function addPlayer(userID, playerData) {
   var coords;
   var i;
   var player;
 
   if (findIndex(game.users, userID) === -1) {
     coords = getInitialPlayerLocation();
-    player = new Player(userID, coords.x, coords.y );
+    player = new Player(userID, coords.x, coords.y, playerData);
     game.users.push(player);
   }
 

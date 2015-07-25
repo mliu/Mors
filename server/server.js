@@ -20,6 +20,7 @@ app.use(express.static(__dirname + '/../client'));
 io.on('connection', function(socket) {
   console.log("User connected with id " + socket.id);
 
+
   // Store the userID and currentPlayer within this function scope for reference
   var userID = socket.id;
   var currentPlayer;
@@ -28,7 +29,7 @@ io.on('connection', function(socket) {
   socket.on('setup', function(playerData) {
 
     // Add the player to the game
-    currentPlayer = game.addPlayer(userID);
+    currentPlayer = game.addPlayer(userID, playerData);
 
     // Setup current player
     currentPlayer.setup(playerData);
@@ -58,6 +59,9 @@ io.on('connection', function(socket) {
     socket.emit('playerMove', currentPlayer.getCoordinates());
     io.emit('gameUpdate', game.getGameData());
   });
+
+  // Send any initial data to client
+  socket.emit('welcome');
 });
 
 // Update all CPU managed models according to what FPS we run in

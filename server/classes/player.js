@@ -2,17 +2,20 @@
 var Actor = require('./actor.js');
 var Util = require('./util.js');
 
-var Player = function(id, map, initX, initY) {
+var Player = function(id, map, initX, initY, playerData) {
+  // General descriptive properties
+  this.id = id;
   this.color = '#000';
   this.height = 30;
-  this.id = id;
-  this.input = {};
-  this.name = '';
-  this.v = 5;
   this.width = 30;
+  this.name = playerData.name;
+  this.v = 5;
   this.x = initX;
   this.y = initY;
-  this.map;
+  this.map = map;
+
+  // Player input, used for movement
+  this.input = {};
 }
 Player.prototype = Object.create(Actor.prototype);
 
@@ -34,11 +37,6 @@ Player.prototype.handleMovement = function() {
   if (this.input.down) {
     this.y += this.v;
   }
-}
-
-// Called on player setup
-Player.prototype.setup = function(data) {
-  this.name = data.name;
 }
 
 Player.prototype.toJSON = function() {

@@ -47,7 +47,6 @@
     // Initialize dashboard
     dashboard = new Dashboard(stage);
     stage.addChild(dashboard.metricsContainer);
-    dashboard.displayWelcomeScreen(player, setupPlayer);
 
     //Initialize ticker
     createjs.Ticker.setFPS(60);
@@ -154,6 +153,7 @@
 
     // Initial message received on connection.
     socket.on('welcome', function(data) {
+      dashboard.displayWelcomeScreen(player, setupPlayer);
     });
   }
 
