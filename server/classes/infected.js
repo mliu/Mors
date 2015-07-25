@@ -9,7 +9,7 @@ var statusChangePercent = {
   chase: 0.8
 }
 
-var Infected = function(id, initX, initY) {
+var Infected = function(id, map, initX, initY) {
   // General descriptive properties
   this.color = '#539328';
   this.height = 30;
@@ -18,6 +18,7 @@ var Infected = function(id, initX, initY) {
   this.width = 30;
   this.x = initX;
   this.y = initY;
+  this.map = map;
 
   // Radian value of direction this infected is facing
   this.direction = 0;
@@ -32,10 +33,6 @@ var Infected = function(id, initX, initY) {
   this.target = null;
 }
 Infected.prototype = Object.create(Actor.prototype);
-
-Infected.prototype.getCoordinates = function() {
-  return { x: this.x, y: this.y };
-}
 
 // Returns the index of the nearest object in arr. Assumes each element in arr has an x and y property
 Infected.prototype.getNearest = function(arr) {

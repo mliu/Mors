@@ -1,5 +1,6 @@
 'use strict';
 var Infected = require('./classes/infected.js');
+var Player = require('./classes/player.js');
 var Util = require('./classes/util.js');
 var config = require('./config.json');
 
@@ -21,19 +22,23 @@ game.removePlayer = removePlayer;
 game.setup = setup;
 
 // Adds a player if it doesn't already exist in the userbase
-function addPlayer(player) {
+function addPlayer(userID) {
+  var coords;
   var i;
+  var player;
 
-  if (findIndex(game.users, player.id) === -1) {
+  if (findIndex(game.users, userID) === -1) {
+    coords = getInitialPlayerLocation();
+    player = new Player(userID, coords.x, coords.y );
     game.users.push(player);
   }
-
-  setupInitialPlayerLocation(player);
 
   // Create infected for the user
   for (i = 0; i < config.INFECTED_PER_USER; i++) {
     game.infected.push(generateInfected(game.infected.length + i));
   }
+
+  return player;
 }
 
 // Find and return the location of object with property id in arr
@@ -91,6 +96,11 @@ function getGameMap() {
   return sandbox;
 }
 
+function getInitialPlayerLocation() {
+  // TODO Actually detect where's a good place to drop a player
+  return { x: Util.randomInt(30, (sandbox[0].length - 1) * 30), y: Util.randomInt(30, (sandbox.length - 1) * 30) };
+}
+
 // Calls toJSON() on all elements in arr and returns the array
 function getJSONArray(arr) {
   var res = [];
@@ -144,13 +154,6 @@ function setup() {
   for (i = 0; i < config.BASE_INFECTED; i++) {
     game.infected.push(generateInfected(i));
   }
-}
-
-function setupInitialPlayerLocation(player) {
-  // TODO Actually detect where's a good place to drop a player
-  player.x = Util.randomInt(30, (sandbox[0].length - 1) * 30);
-  player.y = Util.randomInt(30, (sandbox.length - 1) * 30);
-  player.mapId = 0;
 }
 
 module.exports = game;

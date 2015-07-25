@@ -22,13 +22,13 @@ io.on('connection', function(socket) {
 
   // Store the userID and currentPlayer within this function scope for reference
   var userID = socket.id;
-  var currentPlayer = new Player(userID);
+  var currentPlayer;
 
   // When player has entered their data
   socket.on('setup', function(playerData) {
 
     // Add the player to the game
-    game.addPlayer(currentPlayer);
+    currentPlayer = game.addPlayer(userID);
 
     // Setup current player
     currentPlayer.setup(playerData);

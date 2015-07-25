@@ -4,8 +4,8 @@ var Util = require('./classes/util.js');
 var BLOCK_WIDTH = 30;
 var BLOCK_HEIGHT = 30;
 
-var Actor = function(map) {
-  this.map = map;
+var Actor = function() {
+  
 }
 
 // Returns the (x, y) coordinates of the center of this object given it has properties x, y, width, and height
@@ -87,6 +87,10 @@ Actor.prototype.evaluateCollisions = function(map) {
       }
     }
   }
+}
+
+Actor.prototype.getCoordinates = function() {
+  return { x: this.x, y: this.y };
 }
 
 // Returns a 3x3 matrix of the block types in the map around obj (assuming it has properties i and j).

@@ -2,7 +2,7 @@
 var Actor = require('./actor.js');
 var Util = require('./util.js');
 
-var Player = function(id) {
+var Player = function(id, map, initX, initY) {
   this.color = '#000';
   this.height = 30;
   this.id = id;
@@ -10,12 +10,11 @@ var Player = function(id) {
   this.name = '';
   this.v = 5;
   this.width = 30;
+  this.x = initX;
+  this.y = initY;
+  this.map;
 }
 Player.prototype = Object.create(Actor.prototype);
-
-Player.prototype.getCoordinates = function() {
-  return { x: this.x, y: this.y };
-}
 
 // Called by the engine every game loop. Updates player position accordingly
 Player.prototype.handleMovement = function() {
