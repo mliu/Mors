@@ -1,6 +1,6 @@
 'use strict';
+var Actor = require('./actor.js');
 var Util = require('./util.js');
-var Victor = require('victor');
 
 var Player = function(id) {
   this.color = '#000';
@@ -11,6 +11,7 @@ var Player = function(id) {
   this.v = 5;
   this.width = 30;
 }
+Player.prototype = Object.create(Actor.prototype);
 
 Player.prototype.getCoordinates = function() {
   return { x: this.x, y: this.y };
@@ -48,6 +49,5 @@ Player.prototype.toJSON = function() {
 Player.prototype.updateMovementInput = function(playerData) {
   this.input = playerData.input;
 }
-
 
 module.exports = Player;

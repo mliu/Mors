@@ -1,14 +1,12 @@
 'use strict';
 var Infected = require('./classes/infected.js');
 var Util = require('./classes/util.js');
-var engine = require('./engine.js');
+var config = require('./config.json');
 
 // Load maps
 var sandbox = require('./maps/sandbox.js');
 
 var game = {};
-var INFECTED_PER_USER = 0;
-var BASE_INFECTED = 1;
 
 game.infected = [];
 game.looping = false;
@@ -33,7 +31,7 @@ function addPlayer(player) {
   setupInitialPlayerLocation(player);
 
   // Create infected for the user
-  for (i = 0; i < INFECTED_PER_USER; i++) {
+  for (i = 0; i < config.INFECTED_PER_USER; i++) {
     game.infected.push(generateInfected(game.infected.length + i));
   }
 }
@@ -90,7 +88,7 @@ function getGameData() {
 
 // Returns the map
 function getGameMap() {
-  return engine.map;
+  return sandbox;
 }
 
 // Calls toJSON() on all elements in arr and returns the array
@@ -143,18 +141,15 @@ function removePlayer(index) {
 function setup() {
   var i;
 
-  for (i = 0; i<BASE_INFECTED; i++) {
+  for (i = 0; i < config.BASE_INFECTED; i++) {
     game.infected.push(generateInfected(i));
   }
-
-  // TODO dynamic map?
-  engine.map = sandbox;
 }
 
 function setupInitialPlayerLocation(player) {
   // TODO Actually detect where's a good place to drop a player
-  player.x = Util.randomInt(30, (engine.map[0].length - 1) * 30);
-  player.y = Util.randomInt(30, (engine.map.length - 1) * 30);
+  player.x = Util.randomInt(30, (sandbox[0].length - 1) * 30);
+  player.y = Util.randomInt(30, (sandbox.length - 1) * 30);
   player.mapId = 0;
 }
 

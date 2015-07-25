@@ -1,4 +1,5 @@
 'use strict';
+var Actor = require('./actor.js');
 var Util = require('./util.js');
 
 // Constant values for a propensity towards a status
@@ -30,6 +31,7 @@ var Infected = function(id, initX, initY) {
   // The current target this infected is following
   this.target = null;
 }
+Infected.prototype = Object.create(Actor.prototype);
 
 Infected.prototype.getCoordinates = function() {
   return { x: this.x, y: this.y };
