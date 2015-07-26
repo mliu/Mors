@@ -146,7 +146,6 @@
       // Setup map and add it to container
       mapper = new Mapper(settings.map);
       container.addChild(mapper.mapContainer);
-
       
       dashboard.hideWelcomeScreen();
     });

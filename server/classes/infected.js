@@ -1,6 +1,7 @@
 'use strict';
 var Actor = require('./actor.js');
 var Util = require('./util.js');
+var Victor = require('victor');
 
 // Constant values for a propensity towards a status
 var statusChangePercent = {
@@ -9,19 +10,16 @@ var statusChangePercent = {
   chase: 0.8
 }
 
-var Infected = function(id, map, initX, initY) {
+var Infected = function(id, initX, initY) {
   // General descriptive properties
   this.id = id;
   this.color = '#539328';
   this.height = 30;
   this.width = 30;
-  this.v = Util.random(1, 6);
+  this.baseVelocity = Util.random(1, 4.5);
+  this.v = new Victor(0, 0);
   this.x = initX;
   this.y = initY;
-  this.map = map;
-
-  // Radian value of direction this infected is facing
-  this.direction = 0;
 
   // Current state of this infected
   this.status = "idle";
@@ -105,8 +103,8 @@ Infected.prototype.getOtherStates = function(state) {
 }
 
 Infected.prototype.move = function(v) {
-  this.x += v * Math.cos(this.direction);
-  this.y += v * Math.sin(this.direction);
+  this.x += this.v.x;
+  this.y += this.v.y;
 }
 
 // Called on each game loop. Go through state of current infected. Determine status changes and new coordinates.
@@ -118,22 +116,23 @@ Infected.prototype.think = function(users) {
     // Call the status method
     statusChanged = this["think" + this.status](users);
 
+    this.statusCounter++;
+
     // If the status has been changed, reset the statusCounter
     if (statusChanged) {
       this.statusCounter = 0; 
     }
-
-    this.statusCounter++;
   }
 }
 
 // Think method for chase status
 Infected.prototype.thinkchase = function(users) {
   var dist;
+  var direction;
   var targets;
 
   // If this is the first frame in chase, choose a target randomly from the nearest 5 to chase
-  if (this.statusCounter === 1 || !this.target) {
+  if (this.statusCounter === 0 || !this.target) {
     targets = this.getNearestFive(users);
     this.target = targets[Util.randomInt(0, targets.length-1)].object;
   }
@@ -147,13 +146,15 @@ Infected.prototype.thinkchase = function(users) {
   }
 
   // If the target is close, we can just jump straight to them.
-  if (dist < this.v) {
+  if (dist < this.baseVelocity) {
     this.x = this.target.x;
     this.y = this.target.y;
   } else {
     // Set direction straight to target
-    this.direction = Util.calculateAngle(this, this.target);
-    this.move(this.v);
+    direction = Util.calculateAngle(this, this.target);
+    this.v.x = this.baseVelocity * Math.cos(direction);
+    this.v.y = this.baseVelocity * Math.sin(direction);
+    this.move();
   }
 
   return false;
@@ -180,9 +181,19 @@ Infected.prototype.thinkidle = function(users) {
 
 // Think method for roam status
 Infected.prototype.thinkroam = function(users) {
+  var direction = 0;
+  var nearest = this.getNearest(users);
+
+  // If this is the first frame in the roam state, reduce the current velocity to 1/4 its base
+  if(this.statusCounter === 0) {
+    this.v.x = this.baseVelocity / 4 * Math.cos(this.v.angle());
+    this.v.y = this.baseVelocity / 4 * Math.sin(this.v.angle());
+  }
+
   // Randomly change direction every 50 ticks
   if (Util.intervalStep(this.statusCounter, 50)) {
-    this.direction += Math.random(-10, 10);
+    direction += Math.random(-10, 10);
+    this.v.rotate(direction);
 
     // Chance to switch into idle state
     if (Math.random() > 0.8) {
@@ -190,11 +201,16 @@ Infected.prototype.thinkroam = function(users) {
       return true;
     }
   }
-  
-  this.move(this.v/4);
 
-  // Other than movement, act the same as an idling infected
-  return this.thinkidle(users);
+  // The closer the nearest target is, the higher chance of chasing
+  if (Util.intervalStep(this.statusCounter, 20) && Util.linearChance(nearest.distance, Math.random(), 200, .85)) {
+    this.status = "chase";
+    return true;
+  }
+
+  this.move();
+
+  return false;
 }
 
 Infected.prototype.toJSON = function() {

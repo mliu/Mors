@@ -31,9 +31,6 @@ io.on('connection', function(socket) {
     // Add the player to the game
     currentPlayer = game.addPlayer(userID, playerData);
 
-    // Setup current player
-    currentPlayer.setup(playerData);
-
     // Notify users of player joining
     socket.emit('setupSuccess', { map: game.getGameMap(), player: currentPlayer.toJSON() });
     socket.broadcast.emit('playerJoin', currentPlayer.toJSON());
@@ -52,12 +49,13 @@ io.on('connection', function(socket) {
 
   // Fired from each client every game tick
   socket.on('0', function(playerData) {
+    if(currentPlayer) {
+      // Update the players movement
+      game.updatePlayerMovement(currentPlayer, playerData);
 
-    // Update the players movement
-    game.updatePlayerMovement(currentPlayer, playerData);
-
-    socket.emit('playerMove', currentPlayer.getCoordinates());
-    io.emit('gameUpdate', game.getGameData());
+      socket.emit('playerMove', currentPlayer.getCoordinates());
+      io.emit('gameUpdate', game.getGameData());
+    }
   });
 
   // Send any initial data to client

@@ -1,11 +1,11 @@
 'use strict';
-var Util = require('./classes/util.js');
+var Util = require('./util.js');
 
 var BLOCK_WIDTH = 30;
 var BLOCK_HEIGHT = 30;
 
 var Actor = function() {
-  
+
 }
 
 // Returns the (x, y) coordinates of the center of this object given it has properties x, y, width, and height
@@ -43,9 +43,9 @@ Actor.prototype.checkYCollision = function(blockI, blockJ) {
 }
 
 // Looks at this object and any collisions in the map it currently has and update the position accordingly
-Actor.prototype.evaluateCollisions = function(map) {
+Actor.prototype.evaluateCollisions = function() {
   var coordinates = calculateGridCoordinates();
-  var surroundings = getThreeByThree(coordinates, map);
+  var surroundings = getThreeByThree(coordinates, this.map);
   var block;
   var blockI;
   var blockJ;

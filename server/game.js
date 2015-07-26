@@ -67,7 +67,6 @@ function gameLoop() {
 
     // Handle movement and evaluate collisions
     game.users[u].handleMovement();
-    engine.evaluateCollisions(game.users[u], engine.map);
   }
 
   for (i = game.infected.length; i--;) {
