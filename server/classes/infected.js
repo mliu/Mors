@@ -10,7 +10,7 @@ var statusChangePercent = {
   chase: 0.8
 }
 
-var Infected = function(id, initX, initY) {
+var Infected = function(id, map, initX, initY) {
   // General descriptive properties
   this.id = id;
   this.color = '#539328';
@@ -20,6 +20,7 @@ var Infected = function(id, initX, initY) {
   this.v = new Victor(0, 0);
   this.x = initX;
   this.y = initY;
+  this.map = map;
 
   // Current state of this infected
   this.status = "idle";
@@ -102,19 +103,14 @@ Infected.prototype.getOtherStates = function(state) {
   return states;
 }
 
-Infected.prototype.move = function(v) {
-  this.x += this.v.x;
-  this.y += this.v.y;
-}
-
 // Called on each game loop. Go through state of current infected. Determine status changes and new coordinates.
-Infected.prototype.think = function(users) {
+Infected.prototype.think = function(users, map) {
   var statusChanged = false;
 
   if (users.length) {
 
     // Call the status method
-    statusChanged = this["think" + this.status](users);
+    statusChanged = this["think" + this.status](users, map);
 
     this.statusCounter++;
 
@@ -126,7 +122,7 @@ Infected.prototype.think = function(users) {
 }
 
 // Think method for chase status
-Infected.prototype.thinkchase = function(users) {
+Infected.prototype.thinkchase = function(users, map) {
   var dist;
   var direction;
   var targets;
@@ -139,9 +135,9 @@ Infected.prototype.thinkchase = function(users) {
 
   // If the target is too far away, higher chance to lose interest
   dist = Util.calculateDistance(this, this.target)
-  if (dist > 300 || (Util.intervalStep(this.statusCounter, 20) && Util.linearChance(dist, Math.random(), 350, .05)) ) {
+  if (dist > 300 || (Util.intervalStep(this.statusCounter, 20) && Util.linearChance(dist, Math.random(), 350, .15)) ) {
     this.target = null;
-    this.status = "roam";
+    this.status = "idle";
     return true;
   }
 
@@ -154,14 +150,14 @@ Infected.prototype.thinkchase = function(users) {
     direction = Util.calculateAngle(this, this.target);
     this.v.x = this.baseVelocity * Math.cos(direction);
     this.v.y = this.baseVelocity * Math.sin(direction);
-    this.move();
+    this.move(map);
   }
 
   return false;
 }
 
 // Think method for idle status
-Infected.prototype.thinkidle = function(users) {
+Infected.prototype.thinkidle = function(users, map) {
   var nearest = this.getNearest(users);
 
   // The closer the nearest target is, the higher chance of chasing
@@ -180,7 +176,7 @@ Infected.prototype.thinkidle = function(users) {
 }
 
 // Think method for roam status
-Infected.prototype.thinkroam = function(users) {
+Infected.prototype.thinkroam = function(users, map) {
   var direction = 0;
   var nearest = this.getNearest(users);
 
@@ -208,7 +204,7 @@ Infected.prototype.thinkroam = function(users) {
     return true;
   }
 
-  this.move();
+  this.move(map);
 
   return false;
 }

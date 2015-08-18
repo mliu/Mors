@@ -29,7 +29,7 @@ function addPlayer(userID, playerData) {
 
   if (findIndex(game.users, userID) === -1) {
     coords = getInitialPlayerLocation();
-    player = new Player(userID, coords.x, coords.y, playerData);
+    player = new Player(userID, getGameMap(), coords.x, coords.y, playerData);
     game.users.push(player);
   }
 
@@ -66,11 +66,11 @@ function gameLoop() {
   for (u = game.users.length; u--;) {
 
     // Handle movement and evaluate collisions
-    game.users[u].handleMovement();
+    game.users[u].handleMovement(getGameMap());
   }
 
   for (i = game.infected.length; i--;) {
-    game.infected[i].think(game.users);
+    game.infected[i].think(game.users, getGameMap());
   }
 
   game.looping = false;
@@ -78,7 +78,7 @@ function gameLoop() {
 
 // TODO Actually detect where's a good place to drop an infected
 function generateInfected(id) {
-  var infected = new Infected(id, Util.randomInt(0, 500), Util.randomInt(0, 500));
+  var infected = new Infected(id, getGameMap(), Util.randomInt(0, 500), Util.randomInt(0, 500));
   return infected;
 }
 
@@ -97,7 +97,7 @@ function getGameMap() {
 
 function getInitialPlayerLocation() {
   // TODO Actually detect where's a good place to drop a player
-  return { x: Util.randomInt(30, (sandbox[0].length - 1) * 30), y: Util.randomInt(30, (sandbox.length - 1) * 30) };
+  return { x: Util.randomInt(30, (sandbox[0].length - 2) * 30), y: Util.randomInt(30, (sandbox.length - 2) * 30) };
 }
 
 // Calls toJSON() on all elements in arr and returns the array

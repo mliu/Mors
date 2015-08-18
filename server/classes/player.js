@@ -3,7 +3,7 @@ var Actor = require('./actor.js');
 var Util = require('./util.js');
 var Victor = require('victor');
 
-var Player = function(id, initX, initY, playerData) {
+var Player = function(id, map, initX, initY, playerData) {
   // General descriptive properties
   this.id = id;
   this.color = '#000';
@@ -14,6 +14,7 @@ var Player = function(id, initX, initY, playerData) {
   this.v = new Victor(0, 0);
   this.x = initX;
   this.y = initY;
+  this.map = map;
 
   // Player input, used for movement
   this.input = {};
@@ -21,15 +22,14 @@ var Player = function(id, initX, initY, playerData) {
 Player.prototype = Object.create(Actor.prototype);
 
 // Called by the engine every game loop. Updates player position accordingly
-Player.prototype.handleMovement = function() {
+Player.prototype.handleMovement = function(map) {
   var direction = new Victor(this.input.right - this.input.left, this.input.down - this.input.up);
 
-  if(direction.magnitude()) {
+  if (direction.magnitude()) {
     this.v.x = this.baseVelocity * Math.cos(direction.angle());
     this.v.y = this.baseVelocity * Math.sin(direction.angle());
 
-    this.x += this.v.x;
-    this.y += this.v.y;
+    this.move(map);
   }
 }
 
