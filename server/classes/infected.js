@@ -1,19 +1,23 @@
-'use strict';
-var Actor = require('./actor.js');
-var Util = require('./util.js');
-var Victor = require('victor');
+"use strict";
+var Actor = require("./actor.js");
+var Util = require("./util.js");
+var Victor = require("victor");
 
 // Constant values for a propensity towards a status
 var statusChangePercent = {
   idle: 0.4,
   roam: 0.4,
   chase: 0.8
-}
+};
+
+var distanceSort = function(a,b) {
+  return b.distance - a.distance;
+};
 
 var Infected = function(id, map, initX, initY) {
   // General descriptive properties
   this.id = id;
-  this.color = '#539328';
+  this.color = "#539328";
   this.height = 30;
   this.width = 30;
   this.baseVelocity = Util.random(1, 4.5);
@@ -30,7 +34,7 @@ var Infected = function(id, map, initX, initY) {
 
   // The current target this infected is following
   this.target = null;
-}
+};
 Infected.prototype = Object.create(Actor.prototype);
 
 // Returns the index of the nearest object in arr. Assumes each element in arr has an x and y property
@@ -49,7 +53,7 @@ Infected.prototype.getNearest = function(arr) {
   }
 
   return { distance: minDist, object: arr[nearest] };
-}
+};
 
 // Like getNearest but with an array of 5 closest objects in arr
 Infected.prototype.getNearestFive = function(arr) {
@@ -79,13 +83,11 @@ Infected.prototype.getNearestFive = function(arr) {
       }
     }
     // Sort the nearest array based on distance at the end of each iteration
-    nearest.sort(function(a,b) {
-      return b.distance - a.distance;
-    });
+    nearest.sort(distanceSort);
   }
 
   return nearest;
-}
+};
 
 
 // Returns all other states than the one passed in
@@ -95,13 +97,13 @@ Infected.prototype.getOtherStates = function(state) {
   var s;
 
   for (s = keys.length; s--;) {
-    if (keys[s] != state) {
+    if (keys[s] !== state) {
       states.push(keys[s]);
     }
   }
 
   return states;
-}
+};
 
 // Called on each game loop. Go through state of current infected. Determine status changes and new coordinates.
 Infected.prototype.think = function(users, map) {
@@ -116,10 +118,10 @@ Infected.prototype.think = function(users, map) {
 
     // If the status has been changed, reset the statusCounter
     if (statusChanged) {
-      this.statusCounter = 0; 
+      this.statusCounter = 0;
     }
   }
-}
+};
 
 // Think method for chase status
 Infected.prototype.thinkchase = function(users, map) {
@@ -130,11 +132,11 @@ Infected.prototype.thinkchase = function(users, map) {
   // If this is the first frame in chase, choose a target randomly from the nearest 5 to chase
   if (this.statusCounter === 0 || !this.target) {
     targets = this.getNearestFive(users);
-    this.target = targets[Util.randomInt(0, targets.length-1)].object;
+    this.target = targets[Util.randomInt(0, targets.length - 1)].object;
   }
 
   // If the target is too far away, higher chance to lose interest
-  dist = Util.calculateDistance(this, this.target)
+  dist = Util.calculateDistance(this, this.target);
   if (dist > 300 || (Util.intervalStep(this.statusCounter, 20) && Util.linearChance(dist, Math.random(), 350, .15)) ) {
     this.target = null;
     this.status = "idle";
@@ -154,7 +156,7 @@ Infected.prototype.thinkchase = function(users, map) {
   }
 
   return false;
-}
+};
 
 // Think method for idle status
 Infected.prototype.thinkidle = function(users, map) {
@@ -173,7 +175,7 @@ Infected.prototype.thinkidle = function(users, map) {
   }
 
   return false;
-}
+};
 
 // Think method for roam status
 Infected.prototype.thinkroam = function(users, map) {
@@ -207,10 +209,10 @@ Infected.prototype.thinkroam = function(users, map) {
   this.move(map);
 
   return false;
-}
+};
 
 Infected.prototype.toJSON = function() {
   return { color: this.color, id: this.id, x: this.x, y: this.y };
-}
+};
 
 module.exports = Infected;

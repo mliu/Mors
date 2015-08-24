@@ -1,7 +1,7 @@
-'use strict';
-var Actor = require('./actor.js');
-var Util = require('./util.js');
-var Victor = require('victor');
+"use strict";
+var Actor = require("./actor.js");
+var Util = require("./util.js");
+var Victor = require("victor");
 
 var Player = function(id, map, initX, initY, playerData) {
   // General descriptive properties
@@ -18,7 +18,7 @@ var Player = function(id, map, initX, initY, playerData) {
 
   // Player input, used for movement
   this.input = {};
-}
+};
 Player.prototype = Object.create(Actor.prototype);
 
 // Called by the engine every game loop. Updates player position accordingly
@@ -31,14 +31,14 @@ Player.prototype.handleMovement = function(map) {
 
     this.move(map);
   }
-}
+};
 
 Player.prototype.toJSON = function() {
   return { color: this.color, id: this.id, name: this.name, x: this.x, y: this.y };
-}
+};
 
 Player.prototype.updateMovementInput = function(playerData) {
   this.input = playerData.input;
-}
+};
 
 module.exports = Player;

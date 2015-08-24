@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 // Utility class for common useful methods used by our engine
 var util = {};
@@ -27,7 +27,7 @@ function intervalStep(counter, step) {
 
 // Returns if point (x,y) is inside the triangle formed between the points (0, 0), (a, 0), (0, b). Assumes all are positive.
 function linearChance(x, y, a, b) {
-  return y < ((-b/a) * x + b);
+  return y < ((-b / a) * x + b);
 }
 
 // Returns a random decimal between a and b

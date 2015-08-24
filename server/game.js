@@ -1,11 +1,11 @@
-'use strict';
-var Infected = require('./classes/infected.js');
-var Player = require('./classes/player.js');
-var Util = require('./classes/util.js');
-var config = require('./config.json');
+"use strict";
+var Infected = require("./classes/infected.js");
+var Player = require("./classes/player.js");
+var Util = require("./classes/util.js");
+var config = require("./config.json");
 
 // Load maps
-var sandbox = require('./maps/sandbox.js');
+var sandbox = require("./maps/sandbox.js");
 
 var game = {};
 
