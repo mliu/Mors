@@ -7,6 +7,7 @@ var config = require("./config.json");
 // Load maps
 var sandbox = require("./maps/sandbox.js");
 
+// Load vars
 var game = {};
 
 game.infected = [];
@@ -21,6 +22,10 @@ game.updatePlayerMovement = updatePlayerMovement;
 game.removePlayer = removePlayer;
 game.setup = setup;
 
+var INFECTED_PER_USER = config.INFECTED_PER_USER;
+var BASE_INFECTED = config.BASE_INFECTED;
+
+
 // Adds a player if it doesn't already exist in the userbase
 function addPlayer(userID, playerData) {
   var coords;
@@ -34,7 +39,7 @@ function addPlayer(userID, playerData) {
   }
 
   // Create infected for the user
-  for (i = 0; i < config.INFECTED_PER_USER; i++) {
+  for (i = 0; i < INFECTED_PER_USER; i++) {
     game.infected.push(generateInfected(game.infected.length + i));
   }
 
@@ -150,7 +155,7 @@ function removePlayer(index) {
 function setup() {
   var i;
 
-  for (i = 0; i < config.BASE_INFECTED; i++) {
+  for (i = 0; i < BASE_INFECTED; i++) {
     game.infected.push(generateInfected(i));
   }
 }
