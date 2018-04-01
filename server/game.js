@@ -1,15 +1,47 @@
 "use strict";
+global.document = {
+  createElement: function () {
+    // Canvas
+    return {
+      getContext: function () {
+        return {};
+      }
+    };
+  }
+};
+global.window = {};
 var Infected = require("./classes/infected.js");
+var Matter = require("matter-js");
 var Player = require("./classes/player.js");
 var Util = require("./classes/util.js");
 var config = require("./config.json");
+
+// Physics
+var Engine = Matter.Engine;
+var World = Matter.World;
+var Bodies = Matter.Bodies;
+
+var options = {
+  render: {
+    element: null,
+    controller: {
+      create: function () {},
+      clear: function () {},
+      world: function () {}
+    }
+  },
+  input: {
+    mouse: {}
+  }
+};
+var engine = Engine.create(options);
+Engine.run(engine);
 
 // Load maps
 var sandbox = require("./maps/sandbox.js");
 
 // Load vars
 var game = {};
-
 game.infected = [];
 game.looping = false;
 game.users = [];
@@ -17,7 +49,6 @@ game.users = [];
 game.addPlayer = addPlayer;
 game.gameLoop = gameLoop;
 game.getGameData = getGameData;
-game.getGameMap = getGameMap;
 game.updatePlayerMovement = updatePlayerMovement;
 game.removePlayer = removePlayer;
 game.setup = setup;
@@ -25,6 +56,11 @@ game.setup = setup;
 var INFECTED_PER_USER = config.INFECTED_PER_USER;
 var BASE_INFECTED = config.BASE_INFECTED;
 
+// Reference object to be passed to players
+var gameReference = {
+  engine,
+  map: sandbox,
+};
 
 // Adds a player if it doesn't already exist in the userbase
 function addPlayer(userID, playerData) {
@@ -34,7 +70,7 @@ function addPlayer(userID, playerData) {
 
   if (findIndex(game.users, userID) === -1) {
     coords = getInitialPlayerLocation();
-    player = new Player(userID, getGameMap(), coords.x, coords.y, playerData);
+    player = new Player(userID, gameReference, coords.x, coords.y, playerData);
     game.users.push(player);
   }
 
@@ -95,14 +131,12 @@ function getGameData() {
   }
 }
 
-// Returns the map
-function getGameMap() {
-  return sandbox;
-}
-
 function getInitialPlayerLocation() {
   // TODO Actually detect where's a good place to drop a player
-  return { x: Util.randomInt(30, (sandbox[0].length - 2) * 30), y: Util.randomInt(30, (sandbox.length - 2) * 30) };
+  return {
+    x: Util.randomInt(30, (sandbox[0].length - 2) * 30),
+    y: Util.randomInt(30, (sandbox.length - 2) * 30)
+  };
 }
 
 // Calls toJSON() on all elements in arr and returns the array

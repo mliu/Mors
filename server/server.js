@@ -20,7 +20,6 @@ app.use(express.static(__dirname + "/../client"));
 io.on("connection", function(socket) {
   console.log("User connected with id " + socket.id);
 
-
   // Store the userID and currentPlayer within this function scope for reference
   var userID = socket.id;
   var currentPlayer;

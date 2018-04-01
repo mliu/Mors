@@ -3,9 +3,6 @@
 
   var BLOCK_WIDTH = 30;
   var BLOCK_HEIGHT = 30;
-  var BLOCK_REFERENCE = {
-    1: { name: "Wall" }
-  }
 
   var Mapper = function(mapData) {
     this.mapData = mapData;
@@ -39,9 +36,14 @@
 
         // Render map object if it's not empty space
         if(type !== 0) {
-          
+
           // Call on the render function for this block type
-          this["add" + BLOCK_REFERENCE[type].name](j*BLOCK_WIDTH, i*BLOCK_HEIGHT);
+          switch(type) {
+            case 1:
+              // WALL
+              this.addWall(j*BLOCK_WIDTH, i*BLOCK_HEIGHT);
+              break;
+          }
         }
       }
     }

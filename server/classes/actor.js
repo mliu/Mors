@@ -33,8 +33,8 @@ Actor.prototype.canCollideWith = function(blockType) {
 // Returns true if this object has a x-axis collision with a block at
 // coordinates (blockI, blockJ)
 Actor.prototype.checkXCollision = function(blockI, blockJ) {
-  if ((blockJ * BLOCK_WIDTH < this.x + this.width && blockJ * BLOCK_WIDTH + BLOCK_WIDTH > this.x + this.width) ||
-      (blockJ * BLOCK_WIDTH < this.x && blockJ * BLOCK_WIDTH + BLOCK_WIDTH > this.x)) {
+  if ((blockI * BLOCK_WIDTH < this.x + this.width && blockI * BLOCK_WIDTH + BLOCK_WIDTH > this.x + this.width) ||
+      (blockI * BLOCK_WIDTH < this.x && blockI * BLOCK_WIDTH + BLOCK_WIDTH > this.x)) {
     return true;
   }
 
@@ -44,8 +44,8 @@ Actor.prototype.checkXCollision = function(blockI, blockJ) {
 // Returns true if this object has a y-axis collision with a block at
 // coordinates (blockI, blockJ)
 Actor.prototype.checkYCollision = function(blockI, blockJ) {
-  if ((blockI * BLOCK_HEIGHT < this.y + this.height && blockI * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y + this.height) ||
-      (blockI * BLOCK_HEIGHT < this.y && blockI * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y)) {
+  if ((blockJ * BLOCK_HEIGHT < this.y + this.height && blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y + this.height) ||
+      (blockJ * BLOCK_HEIGHT < this.y && blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y)) {
     return true;
   }
 
@@ -73,31 +73,27 @@ Actor.prototype.evaluateCollisions = function() {
         blockI = (i + coordinates.i - 1);
         blockJ = (j + coordinates.j - 1);
 
-        // // If there's a collision
-        if (this.checkXCollision(blockI, blockJ)) {
+        // If there's a collision
+        if (this.checkXCollision(blockI, blockJ) && this.checkYCollision(blockI, blockJ)) {
+          console.log("collision");
           // Handle x-axis collisions
-          console.log("collide");
           if (this.v.x < 0) {
             // Moving left
-            console.log("a " + blockI);
             this.x = blockI * BLOCK_WIDTH + BLOCK_WIDTH;
-          } else {
-            console.log("b " + blockI);
+          } else if (this.v.x > 0) {
             // Moving right
-            this.x = blockI * BLOCK_WIDTH;
+            this.x = blockI * BLOCK_WIDTH - BLOCK_WIDTH;
+          }
+
+          // Handle y-axis collisions
+          if (this.v.y < 0) {
+            // Moving up
+            this.y = blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT;
+          } else if (this.v.y > 0){
+            // Moving down
+            this.y = blockJ * BLOCK_HEIGHT - BLOCK_HEIGHT;
           }
         }
-
-        // if (this.checkYCollision(blockI, blockJ)) {
-        //   // Handle y-axis collisions
-        //   if (this.v.y < 0) {
-        //     // Moving up
-        //     this.y = blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT;
-        //   } else {
-        //     // Moving up
-        //     this.y = blockJ * BLOCK_HEIGHT;
-        //   }
-        // }
       }
     }
   }
@@ -130,10 +126,10 @@ Actor.prototype.getThreeByThree = function(obj) {
     } else {
       res.push(this.map[j + n].slice(i - 1, i + 2));
     }
-    // console.log(JSON.stringify(res[n + 1]));
+    console.log(JSON.stringify(res[n + 1]));
   }
 
-  // console.log("======================" + JSON.stringify(obj));
+  console.log("======================" + JSON.stringify(obj));
 
   return res;
 };
