@@ -1,7 +1,5 @@
 {
-    // Server stats
     "port": 8000,
-    // Infected stats
     "BASE_INFECTED": 50,
     "INFECTED_PER_USER": 10
 }

@@ -1,13 +1,13 @@
 {
-  "name": "mors",
+  "name": "mors-game",
   "version": "0.0.0",
   "description": "A multiplayer web survival game",
   "main": "server/server.js",
   "author": "Michael Liu",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.12.4",
-    "socket.io": "^1.3.5",
-    "victor": "^0.2.6"
+    "express": "^4.0",
+    "socket.io": "^2.0",
+    "victor": "^1.0"
   }
 }
