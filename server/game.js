@@ -1,4 +1,14 @@
 "use strict";
+var Infected = require("./classes/infected.js");
+var Matter = require("matter-js");
+var Player = require("./classes/player.js");
+var Util = require("./classes/util.js");
+var config = require("./config.json");
+
+var Engine = Matter.Engine;
+var World = Matter.World;
+var Bodies = Matter.Bodies;
+
 global.document = {
   createElement: function () {
     // Canvas
@@ -10,17 +20,6 @@ global.document = {
   }
 };
 global.window = {};
-var Infected = require("./classes/infected.js");
-var Matter = require("matter-js");
-var Player = require("./classes/player.js");
-var Util = require("./classes/util.js");
-var config = require("./config.json");
-
-// Physics
-var Engine = Matter.Engine;
-var World = Matter.World;
-var Bodies = Matter.Bodies;
-
 var options = {
   render: {
     element: null,
@@ -35,15 +34,17 @@ var options = {
   }
 };
 var engine = Engine.create(options);
-Engine.run(engine);
-
+engine.world.gravity.y = 0;
 // Load maps
 var sandbox = require("./maps/sandbox.js");
 
 // Load vars
 var game = {};
+game.engine = engine;
 game.infected = [];
+game.lastTick = new Date().getTime();
 game.looping = false;
+game.map = sandbox;
 game.users = [];
 
 game.addPlayer = addPlayer;
@@ -56,12 +57,6 @@ game.setup = setup;
 var INFECTED_PER_USER = config.INFECTED_PER_USER;
 var BASE_INFECTED = config.BASE_INFECTED;
 
-// Reference object to be passed to players
-var gameReference = {
-  engine,
-  map: sandbox,
-};
-
 // Adds a player if it doesn't already exist in the userbase
 function addPlayer(userID, playerData) {
   var coords;
@@ -70,7 +65,7 @@ function addPlayer(userID, playerData) {
 
   if (findIndex(game.users, userID) === -1) {
     coords = getInitialPlayerLocation();
-    player = new Player(userID, gameReference, coords.x, coords.y, playerData);
+    player = new Player(userID, game, coords.x, coords.y, playerData);
     game.users.push(player);
   }
 
@@ -104,22 +99,25 @@ function gameLoop() {
   }
 
   game.looping = true;
-  for (u = game.users.length; u--;) {
+  var newTick = new Date().getTime();
+  Engine.update(engine, newTick - game.lastTick);
+  game.lastTick = newTick
 
-    // Handle movement and evaluate collisions
-    game.users[u].handleMovement(getGameMap());
-  }
-
-  for (i = game.infected.length; i--;) {
-    game.infected[i].think(game.users, getGameMap());
-  }
+  // for (u = game.users.length; u--;) {
+  //   // Handle movement and evaluate collisions
+  //   game.users[u].handleMovement();
+  // }
+  //
+  // for (i = game.infected.length; i--;) {
+  //   game.infected[i].think(game.users, null);
+  // }
 
   game.looping = false;
 }
 
 // TODO Actually detect where's a good place to drop an infected
 function generateInfected(id) {
-  var infected = new Infected(id, getGameMap(), Util.randomInt(0, 500), Util.randomInt(0, 500));
+  var infected = new Infected(id, null, Util.randomInt(0, 500), Util.randomInt(0, 500));
   return infected;
 }
 

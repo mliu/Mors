@@ -5,12 +5,11 @@ var c = require("./../config.json");
 var BLOCK_WIDTH = c.BLOCK_WIDTH;
 var BLOCK_HEIGHT = c.BLOCK_HEIGHT;
 
-var Actor = function() {
-};
+var Actor = function () {};
 
 // Returns the (x, y) coordinates of the center of this object given it has
 // properties x, y, width, and height
-Actor.prototype.calculateCenterCoordinates = function() {
+Actor.prototype.calculateCenterCoordinates = function () {
   return {
     x: this.x + this.width / 2,
     y: this.y + this.height / 2
@@ -19,22 +18,22 @@ Actor.prototype.calculateCenterCoordinates = function() {
 
 // Returns the (j, i) position of this object in the map matrix assuming it
 // has x and y properties
-Actor.prototype.calculateGridCoordinates = function() {
+Actor.prototype.calculateGridCoordinates = function () {
   return {
     i: Math.floor((this.x + (this.width / 2)) / BLOCK_WIDTH),
     j: Math.floor((this.y + (this.height / 2)) / BLOCK_HEIGHT)
   };
 };
 
-Actor.prototype.canCollideWith = function(blockType) {
+Actor.prototype.canCollideWith = function (blockType) {
   return blockType != 0;
 };
 
 // Returns true if this object has a x-axis collision with a block at
 // coordinates (blockI, blockJ)
-Actor.prototype.checkXCollision = function(blockI, blockJ) {
+Actor.prototype.checkXCollision = function (blockI, blockJ) {
   if ((blockI * BLOCK_WIDTH < this.x + this.width && blockI * BLOCK_WIDTH + BLOCK_WIDTH > this.x + this.width) ||
-      (blockI * BLOCK_WIDTH < this.x && blockI * BLOCK_WIDTH + BLOCK_WIDTH > this.x)) {
+    (blockI * BLOCK_WIDTH < this.x && blockI * BLOCK_WIDTH + BLOCK_WIDTH > this.x)) {
     return true;
   }
 
@@ -43,9 +42,9 @@ Actor.prototype.checkXCollision = function(blockI, blockJ) {
 
 // Returns true if this object has a y-axis collision with a block at
 // coordinates (blockI, blockJ)
-Actor.prototype.checkYCollision = function(blockI, blockJ) {
+Actor.prototype.checkYCollision = function (blockI, blockJ) {
   if ((blockJ * BLOCK_HEIGHT < this.y + this.height && blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y + this.height) ||
-      (blockJ * BLOCK_HEIGHT < this.y && blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y)) {
+    (blockJ * BLOCK_HEIGHT < this.y && blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT > this.y)) {
     return true;
   }
 
@@ -54,7 +53,7 @@ Actor.prototype.checkYCollision = function(blockI, blockJ) {
 
 // Looks at this object and any collisions in the map it currently has and
 // update the position accordingly
-Actor.prototype.evaluateCollisions = function() {
+Actor.prototype.evaluateCollisions = function () {
   var coordinates = this.calculateGridCoordinates();
   var surroundings = this.getThreeByThree(coordinates);
   var block;
@@ -89,7 +88,7 @@ Actor.prototype.evaluateCollisions = function() {
           if (this.v.y < 0) {
             // Moving up
             this.y = blockJ * BLOCK_HEIGHT + BLOCK_HEIGHT;
-          } else if (this.v.y > 0){
+          } else if (this.v.y > 0) {
             // Moving down
             this.y = blockJ * BLOCK_HEIGHT - BLOCK_HEIGHT;
           }
@@ -99,13 +98,16 @@ Actor.prototype.evaluateCollisions = function() {
   }
 };
 
-Actor.prototype.getCoordinates = function() {
-  return { x: this.x, y: this.y };
+Actor.prototype.getCoordinates = function () {
+  return {
+    x: this.body.position.x,
+    y: this.body.position.y
+  };
 };
 
 // Returns a 3x3 matrix of the block types in the map around obj (assuming it
 // has properties i and j).
-Actor.prototype.getThreeByThree = function(obj) {
+Actor.prototype.getThreeByThree = function (obj) {
   var i = obj.i;
   var j = obj.j;
   var res = [];
@@ -134,7 +136,7 @@ Actor.prototype.getThreeByThree = function(obj) {
   return res;
 };
 
-Actor.prototype.move = function() {
+Actor.prototype.move = function () {
   this.x += this.v.x;
   this.y += this.v.y;
   this.evaluateCollisions();
