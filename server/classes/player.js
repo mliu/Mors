@@ -1,5 +1,6 @@
 "use strict";
 var Actor = require("./actor.js");
+var Bullet = require("./bullet.js");
 var Matter = require("matter-js");
 var Util = require("./util.js");
 var Victor = require("victor");
@@ -18,48 +19,22 @@ var Player = function (id, game, initX, initY, playerData) {
   this.name = playerData.name;
   this.baseVelocity = 5;
   this.v = new Victor(0, 0);
-  this.x = initX;
-  this.y = initY;
-  this.map = game.map;
-  this.engine = game.engine;
+  this.game = game;
 
   // Player input, used for movement
   this.input = {};
 
   // Setup physics
-  this.body = Bodies.rectangle(this.x, this.y, this.width, this.height, {
-    friction: 1,
+  this.body = Bodies.rectangle(initX, initY, this.width, this.height, {
+    friction: 0,
     intertia: Infinity,
-    isStatic: true,
+    restitution: 0,
   });
-  World.add(this.engine.world, [this.body]);
+  World.add(this.game.engine.world, [this.body]);
 };
 Player.prototype = Object.create(Actor.prototype);
 
-// Called by the engine every game loop. Updates player position accordingly
-Player.prototype.handleMovement = function () {
-  var direction = new Victor(this.input.right - this.input.left, this.input.down - this.input.up);
-
-  if (direction.magnitude()) {
-    this.v.x = this.baseVelocity * Math.cos(direction.angle());
-    this.v.y = this.baseVelocity * Math.sin(direction.angle());
-
-    Body.setVelocity(this.body, this.v);
-    console.log(this.body.velocity);
-  }
-};
-
-Player.prototype.toJSON = function () {
-  return {
-    color: this.color,
-    id: this.id,
-    name: this.name,
-    x: this.body.position.x,
-    y: this.body.position.y
-  };
-};
-
-Player.prototype.updateMovementInput = function (playerData) {
+Player.prototype.handleInput = function (playerData) {
   this.input = playerData.input;
   var direction = new Victor(this.input.right - this.input.left, this.input.down - this.input.up);
 
@@ -72,9 +47,21 @@ Player.prototype.updateMovementInput = function (playerData) {
       y: 0
     };
   }
-
   Body.setVelocity(this.body, this.v);
-  console.log(this.body.velocity);
+
+  if (this.input.clickEvent) {
+    new Bullet(this.id, this.game.getNewID(), this.game, this.calculateCenterCoordinates().x, this.calculateCenterCoordinates().y, this.input.clickEvent);
+  }
+};
+
+Player.prototype.toJSON = function () {
+  return {
+    color: this.color,
+    id: this.id,
+    name: this.name,
+    x: this.body.position.x,
+    y: this.body.position.y
+  };
 };
 
 module.exports = Player;

@@ -55,7 +55,7 @@ io.on("connection", function (socket) {
   socket.on("0", function (playerData) {
     if (currentPlayer) {
       // Update the players movement
-      game.updatePlayerMovement(currentPlayer, playerData);
+      game.updatePlayer(currentPlayer, playerData);
 
       socket.emit("playerMove", currentPlayer.getCoordinates());
       io.emit("gameUpdate", game.getGameData());

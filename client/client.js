@@ -1,14 +1,15 @@
-(function() {
+(function () {
   'use strict';
 
   var socket;
 
   // Game objects
-  var infectedModels = {}; // Stores all Infected
   var stage; // HTML5 canvas, renders everything
   var container; // Holds all models that move. Acts as a camera that follows the player around and updates all surroundings in context
   var mapper;
   var player; // Current player
+  var infectedModels = {}; // Stores all Infected
+  var projectileModels = {};
   var userModels = {}; // Holds all other user models
 
   // Metrics
@@ -75,6 +76,25 @@
     }
   }
 
+  function renderProjectiles(projectiles) {
+    var i;
+    var model;
+
+    for (i = projectiles.length; i--;) {
+      model = projectileModels[projectiles[i].id];
+
+      // If the projectiles model already exists
+      if (model) {
+        model.handleMovement(projectiles[i]);
+      } else {
+
+        // Create the projectiles model if it doesn't exist and add it to the container
+        projectileModels[projectiles[i].id] = new Bullet(projectiles[i].color, projectiles[i].id, projectiles[i].x, projectiles[i].y);
+        container.addChild(projectileModels[projectiles[i].id].shapeInstance);
+      }
+    }
+  }
+
   // Updates all users in the canvas
   function renderUsers(users) {
     var human;
@@ -107,19 +127,20 @@
   // Set up socket events
   function setupSocket() {
     // On game updates
-    socket.on('gameUpdate', function(data) {
+    socket.on('gameUpdate', function (data) {
       renderUsers(data.users);
       renderInfected(data.infected);
+      renderProjectiles(data.projectiles);
     });
 
     // On player join
-    socket.on('playerJoin', function(playerData) {
+    socket.on('playerJoin', function (playerData) {
 
     });
 
     // On player leave
-    socket.on('playerLeave', function(playerData) {
-      
+    socket.on('playerLeave', function (playerData) {
+
       // If the player exists
       if (playerData !== -1) {
         container.removeChild(userModels[playerData.id].shapeInstance);
@@ -128,16 +149,16 @@
     });
 
     // On player movement
-    socket.on('playerMove', function(movementData) {
+    socket.on('playerMove', function (movementData) {
       player.handleMovement(movementData);
 
       // Center the camera around the player
-      container.x = -player.shapeInstance.x + stage.canvas.width/2;
-      container.y = -player.shapeInstance.y + stage.canvas.height/2;
+      container.x = -player.shapeInstance.x + stage.canvas.width / 2;
+      container.y = -player.shapeInstance.y + stage.canvas.height / 2;
     });
 
     // Setup success
-    socket.on('setupSuccess', function(settings) {
+    socket.on('setupSuccess', function (settings) {
 
       // Setup player and add it to container
       player.setup(settings.player);
@@ -146,12 +167,12 @@
       // Setup map and add it to container
       mapper = new Mapper(settings.map);
       container.addChild(mapper.mapContainer);
-      
+
       dashboard.hideWelcomeScreen();
     });
 
     // Initial message received on connection.
-    socket.on('welcome', function(data) {
+    socket.on('welcome', function (data) {
       dashboard.displayWelcomeScreen(player, setupPlayer);
     });
   }
@@ -164,12 +185,13 @@
 
     // Send back player input
     socket.emit('0', player.toJSON());
+    player.postEmitEvents();
 
     stage.update();
   }
 
   // Watch for window resize
-  window.onresize = function() {
+  window.onresize = function () {
 
     // Reset stage canvas width/height
     stage.canvas.width = document.body.clientWidth;

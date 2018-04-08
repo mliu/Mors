@@ -1,5 +1,6 @@
 "use strict";
 var Infected = require("./classes/infected.js");
+var MapBuilder = require("./maps/mapBuilder.js");
 var Matter = require("matter-js");
 var Player = require("./classes/player.js");
 var Util = require("./classes/util.js");
@@ -45,12 +46,15 @@ game.infected = [];
 game.lastTick = new Date().getTime();
 game.looping = false;
 game.map = sandbox;
+game.newIDCounter = 0;
 game.users = [];
+game.projectiles = [];
 
 game.addPlayer = addPlayer;
 game.gameLoop = gameLoop;
 game.getGameData = getGameData;
-game.updatePlayerMovement = updatePlayerMovement;
+game.getNewID = getNewID;
+game.updatePlayer = updatePlayer;
 game.removePlayer = removePlayer;
 game.setup = setup;
 
@@ -101,7 +105,7 @@ function gameLoop() {
   game.looping = true;
   var newTick = new Date().getTime();
   Engine.update(engine, newTick - game.lastTick);
-  game.lastTick = newTick
+  game.lastTick = newTick;
 
   // for (u = game.users.length; u--;) {
   //   // Handle movement and evaluate collisions
@@ -125,7 +129,8 @@ function generateInfected(id) {
 function getGameData() {
   return {
     users: getJSONArray(game.users),
-    infected: getJSONArray(game.infected)
+    infected: getJSONArray(game.infected),
+    projectiles: getJSONArray(game.projectiles),
   }
 }
 
@@ -149,13 +154,18 @@ function getJSONArray(arr) {
   return res;
 }
 
+function getNewID() {
+  return game.newIDCounter++;
+}
+
 // Called every time a player input is received.
-function updatePlayerMovement(currentPlayer, playerData) {
+function updatePlayer(currentPlayer, playerData) {
   var index = findIndex(game.users, currentPlayer.id);
 
   if (index !== -1) {
-    game.users[index].updateMovementInput(playerData);
+    game.users[index].handleInput(playerData);
   }
+
 }
 
 // Remove and return the object with property id in arr
@@ -190,6 +200,8 @@ function setup() {
   for (i = 0; i < BASE_INFECTED; i++) {
     game.infected.push(generateInfected(i));
   }
+
+  MapBuilder.build(game);
 }
 
 module.exports = game;

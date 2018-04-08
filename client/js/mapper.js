@@ -1,10 +1,10 @@
-(function() {
+(function () {
   'use strict';
 
   var BLOCK_WIDTH = 30;
   var BLOCK_HEIGHT = 30;
 
-  var Mapper = function(mapData) {
+  var Mapper = function (mapData) {
     this.mapData = mapData;
     this.mapContainer = new createjs.Container();
 
@@ -12,7 +12,7 @@
     this.renderBlocks();
   }
 
-  Mapper.prototype.addWall = function(x, y) {
+  Mapper.prototype.addWall = function (x, y) {
 
     // Create wall at (x, y)
     var shapeInstance = new createjs.Shape();
@@ -24,25 +24,25 @@
     this.mapContainer.addChild(shapeInstance);
   }
 
-  Mapper.prototype.renderBlocks = function() {
+  Mapper.prototype.renderBlocks = function () {
     var i;
     var j;
     var type;
 
     // Iterate through all blocks
-    for(i = 0; i < this.mapData.length; i++) {
-      for(j = 0; j < this.mapData[0].length; j++) {
+    for (i = 0; i < this.mapData.length; i++) {
+      for (j = 0; j < this.mapData[0].length; j++) {
         type = this.mapData[i][j];
 
         // Render map object if it's not empty space
-        if(type !== 0) {
+        if (type !== 0) {
 
           // Call on the render function for this block type
-          switch(type) {
-            case 1:
-              // WALL
-              this.addWall(j*BLOCK_WIDTH, i*BLOCK_HEIGHT);
-              break;
+          switch (type) {
+          case 1:
+            // WALL
+            this.addWall(j * BLOCK_WIDTH, i * BLOCK_HEIGHT);
+            break;
           }
         }
       }

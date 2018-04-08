@@ -11,8 +11,8 @@ var Actor = function () {};
 // properties x, y, width, and height
 Actor.prototype.calculateCenterCoordinates = function () {
   return {
-    x: this.x + this.width / 2,
-    y: this.y + this.height / 2
+    x: this.body.position.x + this.width / 2,
+    y: this.body.position.y + this.height / 2
   };
 };
 
